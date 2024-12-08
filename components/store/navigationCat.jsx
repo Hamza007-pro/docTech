@@ -65,7 +65,7 @@ export default function NavigationCat(props) {
                             )}
                             aria-current={tab.current ? 'page' : undefined}
                         >
-                            <Image src={tab.img} alt="svg"/>
+                            <img src={tab.img} alt="svg" />
                             {tab.name}
                         </Link>
                     ))}

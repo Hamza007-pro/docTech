@@ -1,9 +1,8 @@
-
-
-import Header from "@/components/storeComponents/Header";
-import NavigationCat from "@/components/storeComponents/NavigationCat";
-import Body from "@/components/storeComponents/Body";
-import Footer from "@/components/layout/Footer";
+"use client";
+import Header from "../../components/store/Header";
+import NavigationCat from "../../components/store/NavigationCat";
+import Body from "../../components/store/Body";
+import Footer from "../../components/layout/Footer";
 import { footerLink } from "@/assets/DummyData";
 import { useState } from "react";
 
