@@ -9,7 +9,12 @@ const products = [
     model: "UDM-Pro",
     description: "Enterprise-grade, rack-mount UniFi Cloud Gateway with full UniFi application support, 10 Gbps performance, and an integrated switch.",
     price: "$379.00",
-    availability: "In Stock"
+    availability: "In Stock",
+    imageSrc: require("../../assets/productsImg/download.png"),
+    imageAlt: "Dream Machine Pro",
+    isNew: true,
+    clients: "5,000",
+    features: ["NeXT AI Cybersecurity"],
   },
   {
     id: 2,
@@ -17,7 +22,10 @@ const products = [
     model: "UDM-SE (180W)",
     description: "Enterprise-grade, rack-mount UniFi Cloud Gateway with full UniFi application support, 10 Gbps performance, and an integrated PoE switch.",
     price: "$499.00",
-    availability: "In Stock"
+    availability: "In Stock",
+    imageSrc: require("../../assets/productsImg/download.png"),
+    imageAlt: "Dream Machine Special Edition",
+    isNew: true
   },
   {
     id: 3,
@@ -25,7 +33,10 @@ const products = [
     model: "UDW (420W)",
     description: "Wall-mountable UniFi Cloud Gateway with a built-in WiFi 6 access point, PoE switching, and full UniFi application support.",
     price: "$999.00",
-    availability: "In Stock"
+    availability: "In Stock",
+    imageSrc: require("../../assets/productsImg/download.png"),
+    imageAlt: "Dream Wall",
+    isNew: true
   },
   {
     id: 4,
@@ -33,7 +44,10 @@ const products = [
     model: "UX",
     description: "Impressively compact UniFi Cloud Gateway and WiFi 6 access point that runs UniFi Network. Powers an entire network or simply meshes as an access point.",
     price: "$149.00",
-    availability: "In Stock"
+    availability: "In Stock",
+    imageSrc: require("../../assets/productsImg/download.png"),
+    imageAlt: "UniFi Express",
+    isNew: true
   },
   {
     id: 5,
@@ -41,7 +55,11 @@ const products = [
     model: "UDR (40W)",
     description: "Desktop UniFi Cloud Gateway with an integrated WiFi 6 access point and PoE switch.",
     price: "$199.00",
-    availability: "Sold Out"
+    availability: "Sold Out",
+    imageSrc: require("../../assets/productsImg/download.png"),
+    imageAlt: "Dream Router",
+    isNew: true
+
   },
   {
     id: 6,
@@ -49,7 +67,10 @@ const products = [
     model: "UCG-Ultra",
     description: "Powerful and compact multi-WAN UniFi Cloud Gateway with a full suite of advanced routing and security features.",
     price: "$129.00",
-    availability: "Sold Out"
+    availability: "Sold Out",
+    imageSrc: require("../../assets/productsImg/download.png"),
+    imageAlt: "Cloud Gateway Ultra",
+    isNew: true
   }
 ]
 function ProductList() {

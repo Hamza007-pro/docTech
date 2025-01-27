@@ -7,7 +7,7 @@ import { footerLink } from "@/assets/DummyData";
 import { useState } from "react";
 
 export default function Index() {
-    const [navigateTo,setNavigateTo] = useState(null);
+    const [navigateTo,setNavigateTo] = useState(0);
     return (
         <div className="bg-white">
             <Header />
