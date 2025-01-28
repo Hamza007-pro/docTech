@@ -6,7 +6,7 @@ export default function Footer(props:any) {
     <h2 id="footer-heading" className="sr-only">
       Footer
     </h2>
-    <div className="mx-auto max-w-7xl px-6  sm:pt-24 lg:pt-10 lg:px-8">
+    <div className="mx-auto max-w-7xl px-6 py-6  sm:pt-24 lg:pt-10 lg:px-8">
       <div className="xl:grid xl:grid-cols-3 xl:gap-8">
         <div className="grid grid-cols-2 gap-8 xl:col-span-2">
           <div className="md:grid md:grid-cols-2 md:gap-8">

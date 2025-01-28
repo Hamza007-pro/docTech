@@ -9,16 +9,16 @@ function classNames(...classes) {
 
 export default function NavigationCat(props) {
     const [tabs, setTabs] = useState([
-        { name: "what's New", href: '#', img:'/svg/svg10.svg', current: true },
-        { name: 'UniFi Cloud Gateways', href: '#', img:'/svg/svg1.svg', current: false },
-        { name: 'WiFi', href: '#', img:'/svg/svg2.svg', current: false },
-        { name: 'Switching', href: '#', img:'/svg/svg3.svg', current: false },
-        { name: 'Cloud Keys & Gateways', href: '#', img:'/svg/svg4.svg', current: false },
-        { name: 'Camera Security', href: '#', img:'/svg/svg5.svg', current: false },
-        { name: 'Door Access', href: '#', img:'/svg/svg6.svg', current: false },
-        { name: 'Managed VoIP', href: '#', img:'/svg/svg7.svg', current: false },
-        { name: 'New Integrations', href: '#', img:'/svg/svg8.svg', current: false },
-        { name: 'Accessories', href: '#', img:'/svg/svg9.svg', current: false },
+        { name: "what's New", href: '#', img:'/svg/svg10.svg', current: true, size: 'w-24 h-24' },
+        { name: 'UniFi Cloud Gateways', href: '#', img:'/svg/svg1.svg', current: false, size: 'w-32 h-24' },
+        { name: 'WiFi', href: '#', img:'/svg/svg2.svg', current: false, size: 'w-24 h-24' },
+        { name: 'Switching', href: '#', img:'/svg/svg3.svg', current: false, size: 'w-32 h-24' },
+        { name: 'Cloud Keys & Gateways', href: '#', img:'/svg/svg4.svg', current: false, size: 'w-32 h-24' },
+        { name: 'Camera Security', href: '#', img:'/svg/svg5.svg', current: false, size: 'w-32 h-24' },
+        { name: 'Door Access', href: '#', img:'/svg/svg6.svg', current: false, size: 'w-32 h-24' },
+        { name: 'Managed VoIP', href: '#', img:'/svg/svg7.svg', current: false, size: 'w-32 h-24' },
+        { name: 'New Integrations', href: '#', img:'/svg/svg8.svg', current: false, size: 'w-32 h-24' },
+        { name: 'Accessories', href: '#', img:'/svg/svg9.svg', current: false, size: 'w-32 h-24' },
     ]);
 
     const scrollContainerRef = useRef(null);
@@ -35,13 +35,13 @@ export default function NavigationCat(props) {
 
     const scrollLeft = () => {
         if (scrollContainerRef.current) {
-            scrollContainerRef.current.scrollBy({ left: -200, behavior: 'smooth' });
+            scrollContainerRef.current.scrollBy({ left: -300, behavior: 'smooth' });
         }
     };
 
     const scrollRight = () => {
         if (scrollContainerRef.current) {
-            scrollContainerRef.current.scrollBy({ left: 200, behavior: 'smooth' });
+            scrollContainerRef.current.scrollBy({ left: 300, behavior: 'smooth' });
         }
     };
 
@@ -74,22 +74,23 @@ export default function NavigationCat(props) {
                     onScroll={handleScroll}
                     className="flex overflow-x-auto no-scrollbar -mt-4 z-0"
                 >
-                    <div className="flex flex-nowrap gap-4 px-4 py-3">
+                    <div className="flex flex-nowrap gap-2 px-4 py-3">
                         {tabs.map((tab, index) => (
                             <div
                                 key={tab.name}
                                 onClick={() => handleTabClick(index)}
-                                className="flex flex-col items-center flex-shrink-0 space-y-1 cursor-pointer w-1/3 px-2"
+                                className="flex flex-col items-center flex-shrink-0 space-y-1 cursor-pointer w-[10.33%] px-1"
                             >
                                 <div className={classNames(
                                     tab.current ? 'bg-gray-100' : 'bg-white',
-                                    'w-20 h-20 flex items-center justify-center rounded-lg relative overflow-hidden'
+                                    tab.size,
+                                    'flex items-center justify-center rounded-lg relative overflow-hidden'
                                 )}>
                                     <Image 
                                         src={tab.img} 
                                         alt={tab.name}
                                         fill
-                                        className="object-cover p-0"
+                                        className="object-contain p-0"
                                         sizes="(max-width: 80px) 100vw"
                                         priority
                                     />

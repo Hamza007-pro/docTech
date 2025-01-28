@@ -15,6 +15,7 @@ const ctaSection = [
     title: 'Get Started with UniFi Protect',
     subTitle: 'Receive a G4 Camera included with NVR purchase',
     background: '/images/landing_banner1.jpg',
+    mobileBackground: '/images/landing_banner1.jpg',
     breadcrumbs: [{ name: 'Buy UNVR Pro', href: '#' }, { name: 'Buy UNVR', href: '#' },]
   }
 ]
@@ -25,6 +26,7 @@ const ctaSectionTwo = [
     title: 'UniFi 6E & 7 APs',
     subTitle: 'Experience true multi-gigabit speeds and interference-free 6 GHz WiFi',
     background: '/images/landing_banner2.jpg',
+    mobileBackground: '/images/landing_u7--mobile.82d09039.jpg',
     breadcrumbs: [{ name: 'Learn More', href: '#' }]
   }
 ]
@@ -33,6 +35,7 @@ const ctaSectionTwos = [
     title: 'UI Care Extended Warranty',
     subTitle: 'Protect your device with',
     background: '/images/landing6.png',
+    mobileBackground: '/images/ui-care-mob.7ed48780.png',
     breadcrumbs: [{ name: 'Learn More', href: '#' }]
   }
 ]

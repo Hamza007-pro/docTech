@@ -6,12 +6,12 @@ import CtaSectionThree from "@/components/store/ctaSectionThree";
 import CardTwo from "@/components/store/cardTwo";
 export default function StorePage() {
     return (
-        <div className="mx-auto max-w-7xl sm:px-4 mt-5 lg:px-8 bg-white">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 mt-5 lg:px-8 bg-white">
             {ctaSection.map((item) => (
                 <CtaSection key={item.name} content={item} />
             ))}
             <h2 className="text-3xl font-bold tracking-tight text-black sm:text-4xl my-10">
-                Take a look at<span className="text-gray-500"> what’s new</span></h2>
+                Take a look at<span className="text-gray-500"> what&apos;s new</span></h2>
             {ctaSectionTwo.map((item) => (
                 <CtaSection key={item.name} content={item} />
             ))}
