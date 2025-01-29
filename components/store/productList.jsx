@@ -2,7 +2,7 @@ import React from 'react'
 import CatTabs from './catTabs'
 import ProductCard from './productCard'
 
-const products = [
+export const products = [
   {
     id: 1,
     title: "Dream Machine Pro",
@@ -11,6 +11,7 @@ const products = [
     price: "$379.00",
     availability: "In Stock",
     imageSrc: require("../../assets/productsImg/download.png"),
+    imgFull: require("../../assets/productsImg/productFull/949fdb99-c8cb-4dae-8097-943f59eced8d.png"),
     imageAlt: "Dream Machine Pro",
     isNew: true,
     clients: "5,000",
@@ -59,7 +60,6 @@ const products = [
     imageSrc: require("../../assets/productsImg/download.png"),
     imageAlt: "Dream Router",
     isNew: true
-
   },
   {
     id: 6,
@@ -73,6 +73,7 @@ const products = [
     isNew: true
   }
 ]
+
 function ProductList() {
   return (
     <div className="mx-auto max-w-7xl sm:px-4 mt-10 lg:px-8 bg-white min-h-[32vh]">

@@ -1,25 +1,31 @@
+"use client";
 import { useRef, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/20/solid';
 import Image from 'next/image';
 import Link from 'next/link';
+import useNavigationStore from '@/lib/store/navigationStore';
 
 function classNames(...classes) {
     return classes.filter(Boolean).join(' ')
 }
 
-export default function NavigationCat(props) {
-    const [tabs, setTabs] = useState([
-        { name: "what's New", href: '#', img:'/svg/svg10.svg', current: true, size: 'w-24 h-24' },
-        { name: 'UniFi Cloud Gateways', href: '#', img:'/svg/svg1.svg', current: false, size: 'w-32 h-24' },
-        { name: 'WiFi', href: '#', img:'/svg/svg2.svg', current: false, size: 'w-24 h-24' },
-        { name: 'Switching', href: '#', img:'/svg/svg3.svg', current: false, size: 'w-32 h-24' },
-        { name: 'Cloud Keys & Gateways', href: '#', img:'/svg/svg4.svg', current: false, size: 'w-32 h-24' },
-        { name: 'Camera Security', href: '#', img:'/svg/svg5.svg', current: false, size: 'w-32 h-24' },
-        { name: 'Door Access', href: '#', img:'/svg/svg6.svg', current: false, size: 'w-32 h-24' },
-        { name: 'Managed VoIP', href: '#', img:'/svg/svg7.svg', current: false, size: 'w-32 h-24' },
-        { name: 'New Integrations', href: '#', img:'/svg/svg8.svg', current: false, size: 'w-32 h-24' },
-        { name: 'Accessories', href: '#', img:'/svg/svg9.svg', current: false, size: 'w-32 h-24' },
-    ]);
+export default function NavigationCat() {
+    const router = useRouter();
+    const { navigateTo, setNavigateTo, currentTab, setCurrentTab } = useNavigationStore();
+
+    const tabs = [
+        { name: "what's New", href: '#', img:'/svg/svg10.svg', size: 'w-24 h-24' },
+        { name: 'UniFi Cloud Gateways', href: '#', img:'/svg/svg1.svg', size: 'w-32 h-24' },
+        { name: 'WiFi', href: '#', img:'/svg/svg2.svg', size: 'w-24 h-24' },
+        { name: 'Switching', href: '#', img:'/svg/svg3.svg', size: 'w-32 h-24' },
+        { name: 'Cloud Keys & Gateways', href: '#', img:'/svg/svg4.svg', size: 'w-32 h-24' },
+        { name: 'Camera Security', href: '#', img:'/svg/svg5.svg', size: 'w-32 h-24' },
+        { name: 'Door Access', href: '#', img:'/svg/svg6.svg', size: 'w-32 h-24' },
+        { name: 'Managed VoIP', href: '#', img:'/svg/svg7.svg', size: 'w-32 h-24' },
+        { name: 'New Integrations', href: '#', img:'/svg/svg8.svg', size: 'w-32 h-24' },
+        { name: 'Accessories', href: '#', img:'/svg/svg9.svg', size: 'w-32 h-24' },
+    ];
 
     const scrollContainerRef = useRef(null);
     const [showLeftScroll, setShowLeftScroll] = useState(false);
@@ -46,13 +52,10 @@ export default function NavigationCat(props) {
     };
 
     const handleTabClick = (index) => {
-        const newTabs = tabs.map((tab, i) => ({
-            ...tab,
-            current: i === index ? true : false,
-        }));
-        setTabs(newTabs);
-        if (props.setNavigateTo) {
-            props.setNavigateTo(index);
+        setCurrentTab(index);
+        setNavigateTo(index);
+        if (window.location.pathname !== '/store') {
+            router.push('/store');
         }
     };
 
@@ -82,7 +85,7 @@ export default function NavigationCat(props) {
                                 className="flex flex-col items-center flex-shrink-0 space-y-1 cursor-pointer w-[10.33%] px-1"
                             >
                                 <div className={classNames(
-                                    tab.current ? 'bg-gray-100' : 'bg-white',
+                                    currentTab === index ? 'bg-gray-100' : 'bg-white',
                                     tab.size,
                                     'flex items-center justify-center rounded-lg relative overflow-hidden'
                                 )}>
@@ -117,20 +120,18 @@ export default function NavigationCat(props) {
             <div className="hidden sm:block">
                 <nav className="flex space-x-6 justify-center" aria-label="Tabs">
                     {tabs.map((tab, index) => (
-                        <Link
+                        <button
                             onClick={() => handleTabClick(index)}
                             key={tab.name}
-                            href={tab.href}
-                            id={tab.name}
                             className={classNames(
-                                tab.current ? 'bg-gray-100 text-gray-700' : 'text-gray-500 hover:text-gray-700',
+                                currentTab === index ? 'bg-gray-100 text-gray-700' : 'text-gray-500 hover:text-gray-700',
                                 'rounded-md py-2 text-sm font-medium text-center text-[12px] grid justify-center'
                             )}
-                            aria-current={tab.current ? 'page' : undefined}
+                            aria-current={currentTab === index ? 'page' : undefined}
                         >
                             <img src={tab.img} alt="svg" />
                             {tab.name}
-                        </Link>
+                        </button>
                     ))}
                 </nav>
             </div>

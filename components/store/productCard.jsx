@@ -32,11 +32,13 @@ const ProductCard = (props) => {
           className="object-center bg-cover mx-auto"
           width={200}
           height={150}
-          
         />
       </div>
       <h3 className="mt-4 px-3 text-sm text-gray-700">
-        <Link href={props.product.href || "#"} className="font-bold text-base">
+        <Link 
+          href={`/store/product?id=${props.product.id}`}
+          className="font-bold text-base"
+        >
           <span className="absolute inset-0" />
           {props.product.title}
         </Link>
