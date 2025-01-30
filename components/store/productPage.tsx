@@ -1,29 +1,69 @@
 "use client";
-import React from "react";
+
+import React, { useEffect, useState, useMemo } from "react";
 import Image from "next/image";
 import { useSearchParams } from "next/navigation";
 import useNavigationStore from "@/lib/store/navigationStore";
-import { products } from "./productList";
-import { useState } from "react";
 import TabsMenu from "../product/TabsMenu";
+import ProductReview from "../product/productReview";
+import TechSpecsSection from "../product/TechSpecsSection";
+import { getProductById } from "@/lib/products";
+import { Product } from "@/types/product";
+import { getImageUrl } from "@/lib/utils/image";
 
 const ProductPage = () => {
   const searchParams = useSearchParams();
-  const id = searchParams.get("id");
-  // Use Zustand store for navigateTo state
+  const id = searchParams?.get("id");
   const navigateTo = useNavigationStore((state) => state.navigateTo);
   const setNavigateTo = useNavigationStore((state) => state.setNavigateTo);
 
+  const [product, setProduct] = useState<Product | null>(null);
   const [quantity, setQuantity] = useState(1);
-  const product = products.find((p) => p.id === Number(id));
+  const [activeTab, setActiveTab] = useState('Product');
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  if (!product) {
-    return <div>Product not found</div>;
+  useEffect(() => {
+    async function loadProduct() {
+      if (!id) return;
+      
+      try {
+        const data = await getProductById(Number(id));
+        if (data) {
+          setProduct(data);
+        } else {
+          setError('Product not found');
+        }
+      } catch (err) {
+        setError('Failed to load product');
+        console.error('Error loading product:', err);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    loadProduct();
+  }, [id]);
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-gray-500">Loading product...</div>
+      </div>
+    );
+  }
+
+  if (error || !product) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-red-500">{error || 'Product not found'}</div>
+      </div>
+    );
   }
 
   const handleIncrement = () => setQuantity((prev) => prev + 1);
   const handleDecrement = () => setQuantity((prev) => Math.max(1, prev - 1));
-  const handleChange = (e) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = Math.max(1, parseInt(e.target.value) || 1);
     setQuantity(value);
   };
@@ -37,11 +77,15 @@ const ProductPage = () => {
           style={{ position: "sticky", top: "1rem" }}
         >
           <Image
-            src={product.imgFull}
-            alt={product.imageAlt}
+            src={getImageUrl(product.img_full, 'full')}
+            alt={product.image_alt}
             width={500}
             height={500}
             className="object-contain"
+            onError={(e) => {
+              const img = e.target as HTMLImageElement;
+              img.src = '/images/logo.png';
+            }}
           />
         </div>
 
@@ -49,20 +93,24 @@ const ProductPage = () => {
         <div className="lg:col-span-2 mt-10 px-4 py-4 sm:px-0 sm:mt-16 lg:p-4 lg:mt-0 border-2 rounded-sm border-blue-500">
           {/* Title and Price */}
           <div className="flex items-center justify-start">
-            <Image
-              src={product.imageSrc}
-              alt={product.imageAlt}
-              width={100}
-              height={100}
-              className="object-contain mr-4"
-            />
+              <Image
+                src={getImageUrl(product.image_src)}
+                alt={product.image_alt}
+                width={100}
+                height={100}
+                className="object-contain mr-4"
+                onError={(e) => {
+                  const img = e.target as HTMLImageElement;
+                  img.src = '/images/placeholder.png';
+                }}
+              />
             <div>
               <h1 className="text-xl text-center font-bold tracking-tight text-gray-900">
                 {product.title}
               </h1>
               <p className="text-sm text-gray-400 mt-2">{product.model}</p>
               <p className="text-xl font-semibold text-gray-600 mt-4">
-                $1,999.00
+                ${Number(product.price).toFixed(2)}
               </p>
             </div>
           </div>
@@ -100,12 +148,12 @@ const ProductPage = () => {
           <div className="mt-8 space-y-4">
             <div className="border rounded-lg p-4 hover:border-blue-500 cursor-pointer">
               <h3 className="font-semibold text-lg">Single Unit</h3>
-              <p className="text-gray-600">$1,999.00</p>
+              <p className="text-gray-600">${Number(product.price).toFixed(2)}</p>
             </div>
 
             <div className="border rounded-lg p-4 hover:border-blue-500 cursor-pointer">
               <h3 className="font-semibold text-lg">High Availability Pair</h3>
-              <p className="text-gray-600">$3,998.00</p>
+              <p className="text-gray-600">${(Number(product.price) * 2).toFixed(2)}</p>
             </div>
           </div>
 
@@ -157,11 +205,10 @@ const ProductPage = () => {
             </button>
           </div>
         </div>
-
-        
-        
       </div>
-      <TabsMenu />
+      <TabsMenu activeTab={activeTab} setActiveTab={setActiveTab} />
+      {activeTab === 'Product' && <ProductReview />}
+      {activeTab === 'Technical Specification' && <TechSpecsSection product={product} />}
     </div>
   );
 };
