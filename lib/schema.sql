@@ -15,6 +15,7 @@ CREATE TABLE products (
     is_new BOOLEAN DEFAULT false,
     clients VARCHAR(50),
     features TEXT[] DEFAULT '{}',
+    tech_spec_pdf TEXT,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
@@ -45,7 +46,8 @@ INSERT INTO products (
     image_alt,
     is_new,
     clients,
-    features
+    features,
+    tech_spec_pdf
 ) VALUES (
     'Dream Machine Pro',
     'UDM-Pro',
@@ -57,7 +59,8 @@ INSERT INTO products (
     'Dream Machine Pro',
     true,
     '5,000',
-    ARRAY['NeXT AI Cybersecurity']
+    ARRAY['NeXT AI Cybersecurity'],
+    '/docs/products/udm-pro-specs.pdf'
 );
 
 -- Create index for common queries

@@ -9,7 +9,6 @@ import ProductReview from "../product/productReview";
 import TechSpecsSection from "../product/TechSpecsSection";
 import { getProductById } from "@/lib/products";
 import { Product } from "@/types/product";
-import { getImageUrl } from "@/lib/utils/image";
 
 const ProductPage = () => {
   const searchParams = useSearchParams();
@@ -77,12 +76,14 @@ const ProductPage = () => {
           style={{ position: "sticky", top: "1rem" }}
         >
           <Image
-            src={getImageUrl(product.img_full, 'full')}
+            src={product.img_full}
             alt={product.image_alt}
             width={500}
             height={500}
             className="object-contain"
+            priority
             onError={(e) => {
+              console.error('Failed to load full image:', product.img_full);
               const img = e.target as HTMLImageElement;
               img.src = '/images/logo.png';
             }}
@@ -94,14 +95,16 @@ const ProductPage = () => {
           {/* Title and Price */}
           <div className="flex items-center justify-start">
               <Image
-                src={getImageUrl(product.image_src)}
+                src={product.image_src}
                 alt={product.image_alt}
                 width={100}
                 height={100}
                 className="object-contain mr-4"
+                priority
                 onError={(e) => {
+                  console.error('Failed to load thumbnail:', product.image_src);
                   const img = e.target as HTMLImageElement;
-                  img.src = '/images/placeholder.png';
+                  img.src = '/images/logo.png';
                 }}
               />
             <div>

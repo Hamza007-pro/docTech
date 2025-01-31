@@ -2,7 +2,6 @@ import Link from "next/link";
 import React from "react";
 import Image from "next/image";
 import { Product } from "@/types/product";
-import { getImageUrl } from "@/lib/utils/image";
 
 interface ProductCardProps {
   product: Product;
@@ -32,16 +31,18 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
         ))}
       </div>
       <div className="h-10 w-full overflow-hidden group-hover:opacity-75 lg:h-32 xl:h-32">
-        <Image
-          src={getImageUrl(product.image_src)}
-          alt={product.image_alt}
-          className="object-center bg-cover mx-auto"
-          width={200}
-          height={150}
-          onError={(e) => {
-            const img = e.target as HTMLImageElement;
-            img.src = '/images/logo.png';
-          }}
+          <Image
+            src={product.image_src}
+            alt={product.image_alt}
+            className="object-center bg-cover mx-auto"
+            width={200}
+            height={150}
+            priority
+            onError={(e) => {
+              console.error('Failed to load image:', product.image_src);
+              const img = e.target as HTMLImageElement;
+              img.src = '/images/logo.png';
+            }}
         />
       </div>
       <h3 className="mt-4 px-3 text-sm text-gray-700">

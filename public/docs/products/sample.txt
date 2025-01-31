@@ -1,0 +1,20 @@
+This is a placeholder file to demonstrate where PDF files should be placed.
+
+Actual PDF files that should be placed here:
+1. udm-pro-specs.pdf - Dream Machine Pro specifications
+2. product-name-specs.pdf - Your product specifications
+
+Directory structure:
+public/
+  └── docs/
+      └── products/
+          ├── README.md
+          ├── udm-pro-specs.pdf
+          └── other-product-specs.pdf
+
+Steps to add your PDFs:
+1. Copy your PDF files to this directory
+2. Update the database with the path:
+   UPDATE products 
+   SET tech_spec_pdf = '/docs/products/your-product-specs.pdf'
+   WHERE model = 'Your-Product';
