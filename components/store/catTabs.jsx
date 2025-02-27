@@ -1,68 +1,86 @@
-/* eslint-disable jsx-a11y/anchor-is-valid */
-import React from 'react'
+"use client";
+import React, { useEffect, useState } from 'react';
+import { Fragment } from 'react';
+import { Menu, Transition } from '@headlessui/react';
+import { BarsArrowDownIcon } from '@heroicons/react/20/solid';
+import { AdjustmentsHorizontalIcon } from '@heroicons/react/24/outline';
+import Link from 'next/link';
+import { getSubcategories } from '@/lib/categories';
+import useNavigationStore from '@/lib/store/navigationStore';
 
-import { useState } from 'react'
-import { Fragment } from 'react'
-import { Menu, Transition } from '@headlessui/react'
-import { BarsArrowDownIcon } from '@heroicons/react/20/solid'
-
-import { AdjustmentsHorizontalIcon } from '@heroicons/react/24/outline'
-import Link from 'next/link'
 function classNames(...classes) {
     return classes.filter(Boolean).join(' ')
 }
+
 function CatTabs() {
+    const { navigateTo } = useNavigationStore();
+    const [subcategories, setSubcategories] = useState([]);
+    const [currentTab, setCurrentTab] = useState('all');
 
-    const [tabs, setTabs] = useState([
-        { name: 'All', href: '#', current: true, Qts: 18 },
-        { name: 'Flagship', href: '#', current: false, Qts: 5 },
-        { name: 'In-Wall', href: '#', current: false, Qts: 10 },
-        { name: 'Mega Capacity', href: '#', current: false, Qts: 9 },
-        { name: 'Flexible & Outdoor', href: '#', current: false, Qts: 10 },
-        { name: 'Buiding Bridge', href: '#', current: false, Qts: 9 },
-    ]);
+    useEffect(() => {
+        const fetchSubcategories = async () => {
+            try {
+                if (navigateTo && navigateTo !== 0) {
+                    const subs = await getSubcategories(navigateTo);
+                    setSubcategories([
+                        ...subs.map(sub => ({
+                            name: sub.name,
+                            slug: sub.slug,
+                            count: sub.productCount?.count || 0 // Updated to access count from productCount object
+                        }))
+                    ]);
+                } else {
+                    setSubcategories([]);
+                }
+            } catch (error) {
+                console.error('Error fetching subcategories:', error);
+            }
+        };
 
-    const handleTabClick = (index) => {
-        const newTabs = tabs.map((tab, i) => ({
-            ...tab,
-            current: i === index ? true : false,
-        }));
-        setTabs(newTabs);
+        fetchSubcategories();
+    }, [navigateTo]);
+
+    const handleTabClick = (slug) => {
+        setCurrentTab(slug);
+        // You might want to add filtering logic here
+        console.log(subcategories);
     };
+
+    if (subcategories.length === 0) {
+        return null; // Don't show tabs if there are no subcategories
+    }
+
     return (
-        <div className=' justify-between lg:flex'>
+        <div className='justify-between lg:flex'>
             <div className='lg:flex'>
                 <div className="sm:hidden">
-                    <label htmlFor="tabs" className="sr-only">
-                        Select a tab
-                    </label>
-                    {/* Use an "onChange" listener to redirect the user to the selected tab URL. */}
+                    <label htmlFor="tabs" className="sr-only">Select a tab</label>
                     <select
                         id="tabs"
                         name="tabs"
                         className="block w-full rounded-md border-gray-300 focus:border-indigo-500 focus:ring-indigo-500"
-                        defaultValue={tabs.find((tab) => tab.current).name}
+                        value={currentTab}
+                        onChange={(e) => handleTabClick(e.target.value)}
                     >
-                        {tabs.map((tab) => (
-                            <option key={tab.name}>{tab.name}</option>
+                        {subcategories.map((tab) => (
+                            <option key={tab.slug} value={tab.slug}>{tab.name}</option>
                         ))}
                     </select>
                 </div>
                 <div className="hidden sm:block bg-slate-100 w-fit rounded-3xl p-1 mr-3">
-                    <nav className="flex " aria-label="Tabs">
-                        {tabs.map((tab, index) => (
-                            <Link
-                                onClick={() => handleTabClick(index)}
-                                key={tab.name}
-                                href={tab.href}
+                    <nav className="flex" aria-label="Tabs">
+                        {subcategories.map((tab) => (
+                            <button
+                                onClick={() => handleTabClick(tab.slug)}
+                                key={tab.slug}
                                 className={classNames(
-                                    tab.current ? 'bg-white text-blue-700' : 'text-gray-600 hover:text-gray-800',
+                                    currentTab === tab.slug ? 'bg-white text-blue-700' : 'text-gray-600 hover:text-gray-800',
                                     'rounded-3xl px-3 py-1 text-sm font-normal'
                                 )}
-                                aria-current={tab.current ? 'page' : undefined}
+                                aria-current={currentTab === tab.slug ? 'page' : undefined}
                             >
-                                {tab.name} ({tab.Qts})
-                            </Link>
+                                {tab.name} {tab.count > 0 && <span className="text-gray-500">({tab.count})</span>}
+                            </button>
                         ))}
                     </nav>
                 </div>
@@ -255,7 +273,7 @@ function CatTabs() {
                 </div>
             </div>
         </div>
-    )
+    );
 }
 
-export default CatTabs
+export default CatTabs;

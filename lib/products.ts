@@ -24,3 +24,36 @@ export async function getNewProducts(): Promise<Product[]> {
     ascending: false
   });
 }
+
+// New functions for category filtering
+export async function getProductsByCategory(categoryId: number): Promise<Product[]> {
+  return await fetchProducts({ 
+    category_id: categoryId,
+    sortBy: 'created_at',
+    ascending: false
+  });
+}
+
+export async function getProductsBySubcategory(subcategoryId: number): Promise<Product[]> {
+  return await fetchProducts({ 
+    subcategory_id: subcategoryId,
+    sortBy: 'created_at',
+    ascending: false
+  });
+}
+
+export async function getProductsByCategorySlug(slug: string): Promise<Product[]> {
+  return await fetchProducts({ 
+    categorySlug: slug,
+    sortBy: 'created_at',
+    ascending: false
+  });
+}
+
+export async function getProductsBySubcategorySlug(slug: string): Promise<Product[]> {
+  return await fetchProducts({ 
+    subcategorySlug: slug,
+    sortBy: 'created_at',
+    ascending: false
+  });
+}

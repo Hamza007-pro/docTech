@@ -17,7 +17,9 @@ CREATE TABLE products (
     features TEXT[] DEFAULT '{}',
     tech_spec_pdf TEXT,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    category_id INTEGER REFERENCES categories(id),
+    subcategory_id INTEGER REFERENCES categories(id)
 );
 
 -- Create a trigger to automatically update the updated_at timestamp
@@ -66,3 +68,53 @@ INSERT INTO products (
 -- Create index for common queries
 CREATE INDEX idx_products_model ON products(model);
 CREATE INDEX idx_products_availability ON products(availability);
+
+-- Create categories table
+CREATE TABLE categories (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(50) NOT NULL,
+    slug VARCHAR(50) NOT NULL UNIQUE,
+    description TEXT,
+    parent_id INTEGER REFERENCES categories(id),
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Add trigger for updated_at
+CREATE TRIGGER update_categories_updated_at
+    BEFORE UPDATE ON categories
+    FOR EACH ROW
+    EXECUTE FUNCTION update_updated_at_column();
+
+-- Insert main categories
+INSERT INTO categories (name, slug, description) VALUES
+    ('Networking', 'networking', 'Network infrastructure and security solutions'),
+    ('Cameras', 'cameras', 'Security and surveillance cameras'),
+    ('Access', 'access', 'Access control systems');
+
+-- Insert sub-categories
+INSERT INTO categories (name, slug, description, parent_id) VALUES
+    ('Security Gateways', 'security-gateways', 'Network security and gateway devices', 
+        (SELECT id FROM categories WHERE slug = 'networking')),
+    ('Switches', 'switches', 'Network switches and routing equipment', 
+        (SELECT id FROM categories WHERE slug = 'networking')),
+    ('Wireless', 'wireless', 'Wireless networking solutions', 
+        (SELECT id FROM categories WHERE slug = 'networking'));
+
+-- Modify products table to use foreign keys
+ALTER TABLE products
+    DROP COLUMN category_id,
+    DROP COLUMN subcategory_id,
+    ADD COLUMN category_id INTEGER REFERENCES categories(id),
+    ADD COLUMN subcategory_id INTEGER REFERENCES categories(id);
+
+-- Update existing product with proper category references
+UPDATE products 
+SET 
+    category_id = (SELECT id FROM categories WHERE slug = 'networking'),
+    subcategory_id = (SELECT id FROM categories WHERE slug = 'security-gateways')
+WHERE model = 'UDM-Pro';
+
+-- Create indexes for the foreign keys
+CREATE INDEX idx_products_category_id ON products(category_id);
+CREATE INDEX idx_products_subcategory_id ON products(subcategory_id);

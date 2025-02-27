@@ -1,10 +1,11 @@
 "use client";
-import { useRef, useState } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/20/solid';
 import Image from 'next/image';
 import Link from 'next/link';
 import useNavigationStore from '@/lib/store/navigationStore';
+import { getMainCategories } from '@/lib/categories';
 
 function classNames(...classes) {
     return classes.filter(Boolean).join(' ')
@@ -13,23 +14,42 @@ function classNames(...classes) {
 export default function NavigationCat() {
     const router = useRouter();
     const { navigateTo, setNavigateTo, currentTab, setCurrentTab } = useNavigationStore();
+    const [categories, setCategories] = useState([]);
 
-    const tabs = [
-        { name: "what's New", href: '#', img:'/svg/svg10.svg', size: 'w-24 h-24' },
-        { name: 'UniFi Cloud Gateways', href: '#', img:'/svg/svg1.svg', size: 'w-32 h-24' },
-        { name: 'WiFi', href: '#', img:'/svg/svg2.svg', size: 'w-24 h-24' },
-        { name: 'Switching', href: '#', img:'/svg/svg3.svg', size: 'w-32 h-24' },
-        { name: 'Cloud Keys & Gateways', href: '#', img:'/svg/svg4.svg', size: 'w-32 h-24' },
-        { name: 'Camera Security', href: '#', img:'/svg/svg5.svg', size: 'w-32 h-24' },
-        { name: 'Door Access', href: '#', img:'/svg/svg6.svg', size: 'w-32 h-24' },
-        { name: 'Managed VoIP', href: '#', img:'/svg/svg7.svg', size: 'w-32 h-24' },
-        { name: 'New Integrations', href: '#', img:'/svg/svg8.svg', size: 'w-32 h-24' },
-        { name: 'Accessories', href: '#', img:'/svg/svg9.svg', size: 'w-32 h-24' },
-    ];
+    useEffect(() => {
+        const fetchCategories = async () => {
+            try {
+                const mainCategories = await getMainCategories();
+                const formattedCategories = [
+                    {
+                        id: 'new',
+                        name: "What's New",
+                        href: '/store/new',
+                        img: '/svg/New.svg',
+                        size: 'w-24 h-24'
+                    },
+                    ...mainCategories.map(category => ({
+                        name: category.name,
+                        href: `/store/category/${category.slug}`,
+                        img: `/svg/${category.slug}.svg`,
+                        size: 'w-32 h-24',
+                        id: category.id
+                    }))
+                ];
+                setCategories(formattedCategories);
+            } catch (error) {
+                console.error('Error fetching categories:', error);
+            }
+        };
+
+        fetchCategories();
+        
+    }, []);
 
     const scrollContainerRef = useRef(null);
     const [showLeftScroll, setShowLeftScroll] = useState(false);
     const [showRightScroll, setShowRightScroll] = useState(true);
+
 
     const handleScroll = () => {
         if (scrollContainerRef.current) {
@@ -51,11 +71,12 @@ export default function NavigationCat() {
         }
     };
 
-    const handleTabClick = (index) => {
+    const handleTabClick = (index, href) => {
         setCurrentTab(index);
-        setNavigateTo(index);
-        if (window.location.pathname !== '/store') {
-            router.push('/store');
+        if (href === '/store/new') {
+            setNavigateTo(0);
+        } else {
+            setNavigateTo(index);
         }
     };
 
@@ -78,20 +99,20 @@ export default function NavigationCat() {
                     className="flex overflow-x-auto no-scrollbar -mt-4 z-0"
                 >
                     <div className="flex flex-nowrap gap-2 px-4 py-3">
-                        {tabs.map((tab, index) => (
+                        {categories.map((category, index) => (
                             <div
-                                key={tab.name}
-                                onClick={() => handleTabClick(index)}
+                                key={category.id}
+                                onClick={() => handleTabClick(index, category.href)}
                                 className="flex flex-col items-center flex-shrink-0 space-y-1 cursor-pointer w-[10.33%] px-1"
                             >
                                 <div className={classNames(
                                     currentTab === index ? 'bg-gray-100' : 'bg-white',
-                                    tab.size,
+                                    category.size,
                                     'flex items-center justify-center rounded-lg relative overflow-hidden'
                                 )}>
                                     <Image 
-                                        src={tab.img} 
-                                        alt={tab.name}
+                                        src={category.img} 
+                                        alt={category.name}
                                         fill
                                         className="object-contain p-0"
                                         sizes="(max-width: 80px) 100vw"
@@ -99,7 +120,7 @@ export default function NavigationCat() {
                                     />
                                 </div>
                                 <span className="text-xs text-gray-600 text-center whitespace-nowrap px-1 truncate w-full">
-                                    {tab.name}
+                                    {category.name}
                                 </span>
                             </div>
                         ))}
@@ -119,18 +140,18 @@ export default function NavigationCat() {
             {/* Desktop view */}
             <div className="hidden sm:block">
                 <nav className="flex space-x-6 justify-center" aria-label="Tabs">
-                    {tabs.map((tab, index) => (
+                    {categories.map((category, index) => (
                         <button
-                            onClick={() => handleTabClick(index)}
-                            key={tab.name}
+                            onClick={() => handleTabClick(category.id, category.href)}
+                            key={category.id}
                             className={classNames(
-                                currentTab === index ? 'bg-gray-100 text-gray-700' : 'text-gray-500 hover:text-gray-700',
+                                currentTab === category.id ? 'bg-gray-100 text-gray-700' : 'text-gray-500 hover:text-gray-700',
                                 'rounded-md py-2 text-sm font-medium text-center text-[12px] grid justify-center'
                             )}
-                            aria-current={currentTab === index ? 'page' : undefined}
+                            aria-current={currentTab === category.id ? 'page' : undefined}
                         >
-                            <img src={tab.img} alt="svg" />
-                            {tab.name}
+                            <img src={category.img} alt={category.name} />
+                            {category.name}
                         </button>
                     ))}
                 </nav>

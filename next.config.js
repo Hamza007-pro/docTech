@@ -29,6 +29,8 @@ const nextConfig = {
       }
     });
 
+    config.resolve.alias.canvas = false;
+
     return config;
   },
   // Security headers for resources

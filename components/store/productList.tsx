@@ -3,18 +3,28 @@
 import { useEffect, useState } from 'react';
 import CatTabs from './catTabs';
 import ProductCard from './productCard';
-import { getAllProducts } from '@/lib/products';
+import { getAllProducts, getProductsByCategory } from '@/lib/products';
 import { Product } from '@/types/product';
+import useNavigationStore from '@/lib/store/navigationStore';
 
 function ProductList() {
   const [products, setProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { navigateTo } = useNavigationStore();
 
   useEffect(() => {
     async function fetchProducts() {
       try {
-        const data = await getAllProducts();
+        setIsLoading(true);
+        let data;
+        
+        if (navigateTo === 0) {
+          data = await getAllProducts();
+        } else {
+          data = await getProductsByCategory(navigateTo);
+        }
+        
         setProducts(data);
         setError(null);
       } catch (err) {
@@ -26,7 +36,7 @@ function ProductList() {
     }
 
     fetchProducts();
-  }, []);
+  }, [navigateTo]);
 
   if (isLoading) {
     return (
@@ -55,5 +65,5 @@ function ProductList() {
     </div>
   );
 }
-
 export default ProductList;
+
