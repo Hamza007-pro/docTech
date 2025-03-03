@@ -37,12 +37,10 @@ export async function getSubcategories(
 ): Promise<Category[]> {
   const { data, error } = await supabase
     .from("categories")
-    .select(
-      `
-        *,
-        productCount:products!subcategory_id(count)
-      `
-    )
+    .select(`
+      *,
+      product_count: products!products_category_id_fkey(count)
+    `)
     .eq("parent_id", categoryId)
     .order("id");
 
@@ -60,7 +58,7 @@ export async function getSubcategories(
       parent_id: category.parent_id,
       created_at: category.created_at,
       updated_at: category.updated_at,
-      productCount: category.productCount[0]?.count || 0,
+      productCount: category.product_count || 0, // Use the computed product_count
     })) || []
   );
 }

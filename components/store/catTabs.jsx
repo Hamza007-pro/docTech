@@ -6,6 +6,7 @@ import { BarsArrowDownIcon } from "@heroicons/react/20/solid";
 import { AdjustmentsHorizontalIcon } from "@heroicons/react/24/outline";
 import Link from "next/link";
 import { getSubcategories, getCountProductBySubcat } from "@/lib/categories";
+import {getProductsBySubcategorySlug} from "@/lib/products";
 import useNavigationStore from "@/lib/store/navigationStore";
 import { sub } from "date-fns";
 
@@ -14,10 +15,8 @@ function classNames(...classes) {
 }
 
 function CatTabs() {
-  const { navigateTo } = useNavigationStore();
   const [subcategories, setSubcategories] = useState([]);
-  const [currentTab, setCurrentTab] = useState();
-  
+  const { navigateTo, currentTab, setCurrentTab } = useNavigationStore();
 
   useEffect(() => {
     const fetchSubcategoriesAndCounts = async () => {
@@ -68,10 +67,9 @@ function CatTabs() {
     }
   }, [subcategories]);
 
-  const handleTabClick = (slug) => {
-    setCurrentTab(slug);
-    // You might want to add filtering logic here
-    console.log(subcategories);
+  const handleTabClick = (tab) => {
+    useNavigationStore.getState().setCurrentTab(tab.slug);
+    // Add any additional filtering logic here
   };
 
   if (subcategories.length === 0) {
@@ -93,7 +91,7 @@ function CatTabs() {
             onChange={(e) => handleTabClick(e.target.value)}
           >
             {subcategories.map((tab) => (
-              <option key={tab.slug} value={tab.slug}>
+              <option key={tab.id} value={tab.slug}>
                 {tab.name}
               </option>
             ))}
@@ -103,7 +101,7 @@ function CatTabs() {
           <nav className="flex" aria-label="Tabs">
             {subcategories.map((tab) => (
               <button
-                onClick={() => handleTabClick(tab.slug)}
+                onClick={() => handleTabClick(tab)}
                 key={tab.slug}
                 className={classNames(
                   currentTab === tab.slug

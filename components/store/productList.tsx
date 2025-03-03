@@ -3,56 +3,57 @@
 import { useEffect, useState } from 'react';
 import CatTabs from './catTabs';
 import ProductCard from './productCard';
-import { getAllProducts, getProductsByCategory } from '@/lib/products';
+import { 
+  getAllProducts, 
+  getProductsByCategory,
+  getProductsByCategorySlug,
+  getProductsBySubcategorySlug 
+} from '@/lib/products';
 import { Product } from '@/types/product';
 import useNavigationStore from '@/lib/store/navigationStore';
+import { supabase } from '@/lib/supabase';
 
 function ProductList() {
   const [products, setProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const { navigateTo } = useNavigationStore();
+  const { navigateTo, currentTab } = useNavigationStore();
 
   useEffect(() => {
-    async function fetchProducts() {
+    const fetchProducts = async () => {
       try {
         setIsLoading(true);
-        let data;
+        let data: Product[] = [];
         
-        if (navigateTo === 0) {
-          data = await getAllProducts();
-        } else {
-          data = await getProductsByCategory(navigateTo);
+        if (currentTab !== 'all') {
+          // Handle specific subcategory
+          data = await getProductsBySubcategorySlug(currentTab);
+        }
+        else {
+          // Handle "All" case - get all products in current category
+          if (navigateTo) {
+            data = await getAllProducts();
+          } else {
+            // Get both category products AND its subcategory products
+            data = await getProductsByCategory(navigateTo);
+          }
         }
         
         setProducts(data);
         setError(null);
-      } catch (err) {
+      } catch (error) {
+        console.error('Error loading products:', error);
         setError('Failed to load products');
-        console.error('Error loading products:', err);
+        setProducts([]);
       } finally {
         setIsLoading(false);
       }
-    }
+    };
 
     fetchProducts();
-  }, [navigateTo]);
+  }, [navigateTo, currentTab]);
 
-  if (isLoading) {
-    return (
-      <div className="mx-auto max-w-7xl sm:px-4 mt-10 lg:px-8 bg-white min-h-[32vh] flex items-center justify-center">
-        <div className="text-gray-500">Loading products...</div>
-      </div>
-    );
-  }
 
-  if (error) {
-    return (
-      <div className="mx-auto max-w-7xl sm:px-4 mt-10 lg:px-8 bg-white min-h-[32vh] flex items-center justify-center">
-        <div className="text-red-500">{error}</div>
-      </div>
-    );
-  }
 
   return (
     <div className="mx-auto max-w-7xl sm:px-4 mt-10 lg:px-8 bg-white min-h-[32vh]">
@@ -65,5 +66,5 @@ function ProductList() {
     </div>
   );
 }
-export default ProductList;
 
+export default ProductList;

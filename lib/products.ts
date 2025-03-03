@@ -1,5 +1,6 @@
 import { fetchProducts, fetchProductById } from './utils/supabase';
 import type { Product } from '../types/product';
+import { supabase } from "./supabase";
 
 export async function getAllProducts(): Promise<Product[]> {
   return await fetchProducts({ sortBy: 'created_at' });
@@ -51,9 +52,27 @@ export async function getProductsByCategorySlug(slug: string): Promise<Product[]
 }
 
 export async function getProductsBySubcategorySlug(slug: string): Promise<Product[]> {
-  return await fetchProducts({ 
-    subcategorySlug: slug,
-    sortBy: 'created_at',
-    ascending: false
-  });
+  try {
+    // First get the subcategory ID from the slug
+    const subcategory = await supabase
+      .from('categories')
+      .select('id, parent_id')
+      .eq('slug', slug)
+      .not('parent_id', 'is', null)
+      .single();
+
+    if (!subcategory.data) {
+      throw new Error(`Subcategory not found with slug: ${slug}`);
+    }
+
+    // Then fetch products using the subcategory ID
+    return await fetchProducts({ 
+      subcategory_id: subcategory.data.id,
+      sortBy: 'created_at',
+      ascending: false
+    });
+  } catch (error) {
+    console.error(`Error fetching products for subcategory slug ${slug}:`, error);
+    return [];
+  }
 }
