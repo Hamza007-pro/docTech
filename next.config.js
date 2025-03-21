@@ -15,6 +15,8 @@ const nextConfig = {
       }
     ],
     unoptimized: true,
+    deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
+    formats: ['image/webp'],
   },
   webpack: (config) => {
     // Handle canvas dependency
@@ -31,7 +33,7 @@ const nextConfig = {
     
     // Add PDF file handling
     config.module.rules.push({
-      test: /\.pdf$/,
+      test: /\.(pdf|worker\.js)$/,
       type: 'asset/resource',
       generator: {
         filename: 'static/[hash][ext][query]'
@@ -52,12 +54,15 @@ const nextConfig = {
             key: 'Content-Security-Policy',
             value: [
               "default-src 'self'",
-              "script-src 'self' 'unsafe-eval' 'unsafe-inline' https://unpkg.com",
-              "worker-src blob: 'self'",
-              "style-src 'self' 'unsafe-inline' https://unpkg.com",
-              "img-src 'self' data: https://images.unsplash.com http://localhost:8000",
-              "connect-src 'self' blob: https://unpkg.com http://localhost:8000",
-              "frame-src 'self' blob:"
+              "script-src 'self' 'unsafe-eval' 'unsafe-inline'",
+              "worker-src 'self' blob:",
+              "style-src 'self' 'unsafe-inline'",
+              "img-src 'self' data: https://images.unsplash.com http://localhost:8000 blob:",
+              "connect-src 'self' blob: http://localhost:8000 https://*.supabase.co",
+              "frame-src 'self' blob:",
+              "object-src 'self' blob:",
+              "media-src 'self' blob:",
+              "font-src 'self' data:",
             ].join('; ')
           }
         ],

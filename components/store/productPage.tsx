@@ -1,14 +1,44 @@
-"use client";
-
-import React, { useEffect, useState, useMemo } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import { useSearchParams } from "next/navigation";
 import useNavigationStore from "@/lib/store/navigationStore";
 import TabsMenu from "../product/TabsMenu";
 import ProductReview from "../product/productReview";
-import TechSpecsSection from "../product/TechSpecsSection";
+import TechSpecsEnhanced from "../product/TechSpecsEnhanced";
 import { getProductById } from "@/lib/products";
 import { Product } from "@/types/product";
+import { usePdfFeatures } from "@/hooks/usePdfFeatures";
+
+const SpecificationSection = ({ 
+  title, 
+  specs
+}: { 
+  title: string; 
+  specs: { [key: string]: string }; 
+}) => {
+  if (Object.keys(specs).length === 0) return null;
+
+  return (
+    <div className="mb-6 bg-white rounded-lg shadow-sm border border-gray-100">
+      <div className="px-4 py-3 bg-blue-50 border-b border-blue-100 rounded-t-lg">
+        <h3 className="text-lg font-semibold text-blue-900">{title}</h3>
+      </div>
+      <div className="p-4">
+        <dl className="grid grid-cols-1 gap-3">
+          {Object.entries(specs).map(([key, value], index) => (
+            <div 
+              key={`${title}-${key}-${index}`}
+              className="grid grid-cols-3 gap-4 hover:bg-gray-50 p-2 rounded-md transition-colors"
+            >
+              <dt className="text-gray-600 font-medium col-span-1">{key}</dt>
+              <dd className="text-gray-900 col-span-2">{value}</dd>
+            </div>
+          ))}
+        </dl>
+      </div>
+    </div>
+  );
+};
 
 const ProductPage = () => {
   const searchParams = useSearchParams();
@@ -21,6 +51,9 @@ const ProductPage = () => {
   const [activeTab, setActiveTab] = useState('Product');
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  const { specs, isLoading: specsLoading, error: specsError } = 
+    usePdfFeatures(product?.tech_spec_pdf);
 
   useEffect(() => {
     async function loadProduct() {
@@ -94,19 +127,19 @@ const ProductPage = () => {
         <div className="lg:col-span-2 mt-10 px-4 py-4 sm:px-0 sm:mt-16 lg:p-4 lg:mt-0 border-2 rounded-sm border-blue-500">
           {/* Title and Price */}
           <div className="flex items-center justify-start">
-              <Image
-                src={product.image_src}
-                alt={product.image_alt}
-                width={100}
-                height={100}
-                className="object-contain mr-4"
-                priority
-                onError={(e) => {
-                  console.error('Failed to load thumbnail:', product.image_src);
-                  const img = e.target as HTMLImageElement;
-                  img.src = '/images/logo.png';
-                }}
-              />
+            <Image
+              src={product.image_src}
+              alt={product.image_alt}
+              width={100}
+              height={100}
+              className="object-contain mr-4"
+              priority
+              onError={(e) => {
+                console.error('Failed to load thumbnail:', product.image_src);
+                const img = e.target as HTMLImageElement;
+                img.src = '/images/logo.png';
+              }}
+            />
             <div>
               <h1 className="text-xl text-center font-bold tracking-tight text-gray-900">
                 {product.title}
@@ -117,34 +150,26 @@ const ProductPage = () => {
               </p>
             </div>
           </div>
-          {/* Features */}
+
+          {/* Specifications */}
           <div className="mt-6 space-y-4">
-            <hr className="border-t border-gray-300" />
-            <ul className="list-disc pl-5 space-y-3 text-gray-700">
-              <li>{product.description}</li>
-              <li>
-                <strong>Shadow Mode High Availability</strong> with automatic
-                failover provides uninterrupted connectivity (VRRP)*
-              </li>
-              <li>
-                <strong>12.5 Gbps routing</strong> with IDS/IPS
-              </li>
-              <li>
-                License-free, real-time inspection of encrypted packets with{" "}
-                <strong>NeXT AI Inspection</strong> (SSL/TLS decryption)
-              </li>
-              <li>
-                <strong>2× SFP28</strong>, <strong>2× SFP+</strong>, and{" "}
-                <strong>2× 2.5 GbE RJ45</strong> ports (two interfaces
-                remappable to WAN)
-              </li>
-              <li>
-                <strong>Dual hot-swap PSUs</strong> for power redundancy
-              </li>
-              <li>
-                <strong>1.3&quot; touchscreen</strong> for local management
-              </li>
-            </ul>
+            {specsLoading ? (
+              <div className="animate-pulse space-y-4">
+                <div className="h-32 bg-gray-200 rounded"></div>
+                <div className="h-32 bg-gray-200 rounded"></div>
+                <div className="h-32 bg-gray-200 rounded"></div>
+              </div>
+            ) : specsError ? (
+              <div className="p-4 text-red-600 bg-red-50 rounded-lg">
+                {specsError}
+              </div>
+            ) : (
+              <>
+                <SpecificationSection title="General Specifications" specs={specs.general} />
+                <SpecificationSection title="Physical Specifications" specs={specs.physical} />
+                <SpecificationSection title="PoE Specifications" specs={specs.poe} />
+              </>
+            )}
           </div>
 
           {/* Purchase Options */}
@@ -156,25 +181,14 @@ const ProductPage = () => {
 
             <div className="border rounded-lg p-4 hover:border-blue-500 cursor-pointer">
               <h3 className="font-semibold text-lg">High Availability Pair</h3>
-              <p className="text-gray-600">${(Number(product.price) * 2).toFixed(2)}</p>
+              <p className="text-gray-600">
+                ${(Number(product.price) * 2).toFixed(2)}
+              </p>
             </div>
           </div>
 
-          {/* Footnotes */}
-          <div className="mt-6 text-sm text-gray-500 space-y-1">
-            <p>
-              * Requires UniFi OS 4.0 and later. Must be paired with another
-              EFG.
-            </p>
-            <p>
-              ** Pair with an official SFP28 Module, SFP+ Module, or SFP+ to
-              RJ45 Adapter
-            </p>
-            <p>*** Professional Phone Support available in select regions</p>
-          </div>
-
+          {/* Quantity and Add to Cart */}
           <div className="mt-8 flex justify-end space-y-4 space-x-2">
-            {/* Quantity Input */}
             <div className="relative flex items-center max-w-[200px]">
               <button
                 onClick={handleDecrement}
@@ -202,7 +216,6 @@ const ProductPage = () => {
               </button>
             </div>
 
-            {/* Add to Cart */}
             <button className="mt-1 w-24 h-10 bg-blue-600 hover:bg-blue-700 text-white font-light text-sm py-2 rounded-lg transition-colors">
               Add to Cart
             </button>
@@ -211,7 +224,7 @@ const ProductPage = () => {
       </div>
       <TabsMenu activeTab={activeTab} setActiveTab={setActiveTab} />
       {activeTab === 'Product' && <ProductReview />}
-      {activeTab === 'Technical Specification' && <TechSpecsSection product={product} />}
+      {activeTab === 'Technical Specification' && <TechSpecsEnhanced product={product} />}
     </div>
   );
 };
