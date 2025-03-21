@@ -1,20 +1,31 @@
 import { ChevronRightIcon, HomeIcon } from '@heroicons/react/20/solid'
 import Link from 'next/link'
+import Image from 'next/image'
 
 export default function CtaSectionTwo(props) {
     return (
         <div className="bg-white mt-10">
             <div className="mx-auto max-w-7xl px-6 py-10 lg:py-9 h-96 lg:h-48 rounded-xl sm:py-32 lg:px-20 relative">
                 {/* Mobile Background */}
-                <div 
-                    className="md:hidden absolute inset-0 bg-cover rounded-xl z-0" 
-                    style={{ backgroundImage: `url(${props.content.mobileBackground})` }}
-                ></div>
+                <div className="md:hidden absolute inset-0 rounded-xl z-0">
+                    <Image
+                        src={props.content.mobileBackground}
+                        alt="Background"
+                        fill
+                        className="object-cover rounded-xl"
+                        priority
+                    />
+                </div>
                 {/* Desktop Background */}
-                <div 
-                    className="hidden md:block absolute inset-0 bg-cover rounded-xl z-0" 
-                    style={{ backgroundImage: `url(${props.content.background})` }}
-                ></div>
+                <div className="hidden md:block absolute inset-0 rounded-xl z-0">
+                    <Image
+                        src={props.content.background}
+                        alt="Background"
+                        fill
+                        className="object-cover rounded-xl"
+                        priority
+                    />
+                </div>
                 
                 {/* Content */}
                 <div className="relative z-10 h-full flex flex-col justify-center">
@@ -27,7 +38,7 @@ export default function CtaSectionTwo(props) {
                     <div className="mt-6 flex items-center gap-x-6">
                         <nav className="flex" aria-label="Breadcrumb">
                             <ol role="list" className="flex items-center space-x-4">
-                                <li key="home">
+                                <li key="home-breadcrumb">
                                     <div>
                                         <a href="#" className="text-gray-400 hover:text-gray-500">
                                             <HomeIcon className="h-5 w-5 flex-shrink-0" aria-hidden="true" />

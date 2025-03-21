@@ -1,11 +1,22 @@
 import { ChevronRightIcon, HomeIcon } from '@heroicons/react/20/solid'
 import Link from 'next/link'
+import Image from 'next/image'
 
 export default function CtaSectionFour(props) {
     return (
         <div className="bg-white mt-10">
-            <div className={`mx-auto max-w-7xl px-6 py-10 lg:py-14 lg:h-48 rounded-xl sm:py-32 lg:px-20 bg-cover`} style={{ backgroundImage: `url(${props.content.background})` }}>
-                <span className="text-sm font-medium tracking-tight text-[#F5A623] sm:text-4xl lg:text-[22px] ">
+            <div className="mx-auto max-w-7xl px-6 py-10 lg:py-14 lg:h-48 rounded-xl sm:py-32 lg:px-20 relative">
+                <div className="absolute inset-0 rounded-xl">
+                    <Image
+                        src={props.content.background}
+                        alt="Background"
+                        fill
+                        className="object-cover rounded-xl"
+                        priority
+                    />
+                </div>
+                <div className="relative z-10">
+                    <span className="text-sm font-medium tracking-tight text-[#F5A623] sm:text-4xl lg:text-[22px]">
                     {props.content.name}
                 </span>
                 <h2 className="text-3xl font-bold tracking-tight text-black sm:text-4xl ">
@@ -41,6 +52,7 @@ export default function CtaSectionFour(props) {
                                     ))}
                                 </ol>
                             </nav>
+                    </div>
                 </div>
             </div>
         </div>

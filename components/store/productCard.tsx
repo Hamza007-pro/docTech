@@ -11,9 +11,9 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   return (
     <div
       key={product.id}
-      className="group relative bg-[#F6F6F8] px-2 py-5 rounded-md shadow-sm hover:shadow-[0px_9px_28px_4px_#e2e8f0] transition-shadow duration-300"
+      className="group relative bg-[#F6F6F8] px-2 py-5 rounded-md shadow-sm hover:shadow-[0px_9px_28px_4px_#e2e8f0] transition-shadow duration-300 flex flex-col h-full"
     >
-      <div className="flex gap-2 mb-4">
+      <div className="flex gap-2 mb-4 flex-none">
         {product.is_new && (
           <div className="bg-green-300 text-green-900 px-1 rounded-sm text-xs">
             New
@@ -30,7 +30,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
           </span>
         ))}
       </div>
-      <div className="h-10 w-full overflow-hidden group-hover:opacity-75 lg:h-32 xl:h-32">
+      <div className="h-10 w-full overflow-hidden group-hover:opacity-75 lg:h-32 xl:h-32 flex-none">
           <Image
             src={product.image_src}
             alt={product.image_alt}
@@ -45,7 +45,8 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
             }}
         />
       </div>
-      <h3 className="mt-4 px-3 text-sm text-gray-700">
+      <div className="flex-grow flex flex-col min-h-0 mb-4">
+        <h3 className="mt-4 px-3 text-sm text-gray-700">
         <Link 
           href={`/store/product?id=${product.id}`}
           className="font-bold text-base"
@@ -66,7 +67,8 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
       >
         {product.description}
       </p>
-      <div className="flex justify-between px-3 mt-8 text-center">
+      </div>
+      <div className="flex justify-between px-3 mt-auto pt-4 text-center flex-none border-t border-gray-100">
         <p className="text-lg font-normal text-gray-900 my-auto">
           ${Number(product.price).toFixed(2)}
         </p>

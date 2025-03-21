@@ -1,16 +1,27 @@
 import { ChevronRightIcon } from '@heroicons/react/20/solid'
 import Link from 'next/link'
+import Image from 'next/image'
 
 export default function CtaSectionThree(props) {
     return (
         <div className="bg-white mt-10 shadow-sm">
             {
                 props.content.map((item,index) => (
-                    <div key={item.id || index} className={`mx-auto max-w-7xl px-6 py-10 lg:py-30 rounded-xl sm:py-32 lg:px-20 bg-cover`} style={{ backgroundImage: `url(${item.background})` }}>
-                        <h2 className="text-3xl font-bold tracking-tight text-black sm:text-4xl ">
-                            {item.title}
-                        </h2>
-                        <div className="mt-10 flex items-center gap-x-6">
+                    <div key={item.id || index} className="mx-auto max-w-7xl px-6 py-10 lg:py-30 rounded-xl sm:py-32 lg:px-20 relative">
+                        <div className="absolute inset-0 rounded-xl">
+                            <Image
+                                src={item.background}
+                                alt="Background"
+                                fill
+                                className="object-cover rounded-xl"
+                                priority
+                            />
+                        </div>
+                        <div className="relative z-10">
+                            <h2 className="text-3xl font-bold tracking-tight text-black sm:text-4xl">
+                                {item.title}
+                            </h2>
+                            <div className="mt-10 flex items-center gap-x-6">
                             <nav className="flex pl-20" aria-label="Breadcrumb">
                                 <ol role="list" className="flex items-center space-x-4">
                                     {item.breadcrumbs.map((page) => (
@@ -30,11 +41,11 @@ export default function CtaSectionThree(props) {
                                     ))}
                                 </ol>
                             </nav>
+                            </div>
                         </div>
                     </div>
                 ))
             }
-
         </div>
     )
 }

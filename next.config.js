@@ -3,7 +3,16 @@ const nextConfig = {
   images: {
     domains: [
       'your-supabase-storage-domain.supabase.co',
-      'images.unsplash.com'
+      'images.unsplash.com',
+      'localhost'
+    ],
+    remotePatterns: [
+      {
+        protocol: 'http',
+        hostname: 'localhost',
+        port: '8000',
+        pathname: '/**',
+      }
     ],
     unoptimized: true,
   },
@@ -43,11 +52,11 @@ const nextConfig = {
             key: 'Content-Security-Policy',
             value: [
               "default-src 'self'",
-              "script-src 'self' 'unsafe-eval' https://unpkg.com",
+              "script-src 'self' 'unsafe-eval' 'unsafe-inline' https://unpkg.com",
               "worker-src blob: 'self'",
               "style-src 'self' 'unsafe-inline' https://unpkg.com",
-              "img-src 'self' data: https://images.unsplash.com",
-              "connect-src 'self' blob: https://unpkg.com",
+              "img-src 'self' data: https://images.unsplash.com http://localhost:8000",
+              "connect-src 'self' blob: https://unpkg.com http://localhost:8000",
               "frame-src 'self' blob:"
             ].join('; ')
           }

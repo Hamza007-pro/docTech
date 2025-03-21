@@ -1,6 +1,6 @@
 "use client";
 import { useRef, useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/20/solid';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -13,13 +13,28 @@ function classNames(...classes) {
 
 export default function NavigationCat() {
     const router = useRouter();
-    const { navigateTo, setNavigateTo, currentTab, setCurrentTab } = useNavigationStore();
+    const pathname = usePathname();
+    const { navigateTo, setNavigateTo, currentTab, setCurrentTab, reset } = useNavigationStore();
     const [categories, setCategories] = useState([]);
+    const [isLoading, setIsLoading] = useState(true);
+    const [error, setError] = useState(null);
+    const scrollContainerRef = useRef(null);
+    const [showLeftScroll, setShowLeftScroll] = useState(false);
+    const [showRightScroll, setShowRightScroll] = useState(true);
 
     useEffect(() => {
         const fetchCategories = async () => {
+            setIsLoading(true);
+            setError(null);
             try {
-                const mainCategories = await getMainCategories();
+                let mainCategories = [];
+                try {
+                    mainCategories = await getMainCategories();
+                } catch (error) {
+                    console.error('Failed to fetch from Supabase:', error);
+                }
+
+                // Fallback categories if Supabase fetch fails
                 const formattedCategories = [
                     {
                         id: 'new',
@@ -28,28 +43,50 @@ export default function NavigationCat() {
                         img: '/svg/New.svg',
                         size: 'w-24 h-24'
                     },
-                    ...mainCategories.map(category => ({
-                        name: category.name,
-                        href: `/store/category/${category.slug}`,
-                        img: `/svg/${category.slug}.svg`,
-                        size: 'w-32 h-24',
-                        id: category.id
-                    }))
+                    ...(mainCategories.length > 0 
+                        ? mainCategories.map(category => ({
+                            name: category.name,
+                            href: `/store/category/${category.slug}`,
+                            img: `/svg/${category.slug}.svg`,
+                            size: 'w-32 h-24',
+                            id: category.id
+                        }))
+                        : [])
                 ];
                 setCategories(formattedCategories);
             } catch (error) {
                 console.error('Error fetching categories:', error);
+                setError('Failed to load categories');
+            } finally {
+                setIsLoading(false);
             }
         };
 
         fetchCategories();
-        
     }, []);
 
-    const scrollContainerRef = useRef(null);
-    const [showLeftScroll, setShowLeftScroll] = useState(false);
-    const [showRightScroll, setShowRightScroll] = useState(true);
+    if (error) {
+        return (
+            <div className="mx-auto max-w-7xl px-4 py-8 text-center">
+                <p className="text-red-500">{error}</p>
+            </div>
+        );
+    }
 
+    if (isLoading) {
+        return (
+            <div className="mx-auto max-w-7xl sm:px-4 mt-5 lg:px-8">
+                <div className="flex justify-center space-x-6">
+                    {[...Array(5)].map((_, i) => (
+                        <div key={i} className="animate-pulse">
+                            <div className="w-24 h-24 bg-gray-200 rounded-lg"></div>
+                            <div className="mt-2 w-20 h-4 bg-gray-200 rounded"></div>
+                        </div>
+                    ))}
+                </div>
+            </div>
+        );
+    }
 
     const handleScroll = () => {
         if (scrollContainerRef.current) {
@@ -72,11 +109,15 @@ export default function NavigationCat() {
     };
 
     const handleTabClick = (index, href) => {
-        setCurrentTab(index);
-        if (href === '/store/new') {
-            setNavigateTo(0);
-        } else {
-            setNavigateTo(index);
+        const newTab = index.toString();
+        setCurrentTab(newTab);
+        const newNavigateTo = href === '/store/new' ? 0 : index;
+        setNavigateTo(newNavigateTo);
+        
+        // Navigate back to store page when clicking from product page
+        // but preserve the selected category
+        if (pathname !== '/store') {
+            router.push('/store');
         }
     };
 
@@ -106,11 +147,11 @@ export default function NavigationCat() {
                                 className="flex flex-col items-center flex-shrink-0 space-y-1 cursor-pointer w-[10.33%] px-1"
                             >
                                 <div className={classNames(
-                                    currentTab === index ? 'bg-gray-100' : 'bg-white',
+                                    currentTab === index.toString() ? 'bg-gray-100' : 'bg-white',
                                     category.size,
                                     'flex items-center justify-center rounded-lg relative overflow-hidden'
                                 )}>
-                                    <Image 
+                                     <Image 
                                         src={category.img} 
                                         alt={category.name}
                                         fill
@@ -142,13 +183,13 @@ export default function NavigationCat() {
                 <nav className="flex space-x-6 justify-center" aria-label="Tabs">
                     {categories.map((category, index) => (
                         <button
-                            onClick={() => handleTabClick(category.id, category.href)}
+                            onClick={() => handleTabClick(index, category.href)}
                             key={category.id}
                             className={classNames(
-                                currentTab === category.id ? 'bg-gray-100 text-gray-700' : 'text-gray-500 hover:text-gray-700',
+                                currentTab === index.toString() ? 'bg-gray-100 text-gray-700' : 'text-gray-500 hover:text-gray-700',
                                 'rounded-md py-2 text-sm font-medium text-center text-[12px] grid justify-center'
                             )}
-                            aria-current={currentTab === category.id ? 'page' : undefined}
+                            aria-current={currentTab === index.toString() ? 'page' : undefined}
                         >
                             <img src={category.img} alt={category.name} />
                             {category.name}

@@ -6,18 +6,17 @@ interface NavigationState {
   currentTab: string;
   setNavigateTo: (navigateTo: number) => void;
   setCurrentTab: (currentTab: string) => void;
+  reset: () => void;
 }
 
 const useNavigationStore = create<NavigationState>()(
   persist(
     (set) => ({
       navigateTo: 0,
-      currentTab: 'all', // Default to 'all' slug
-      setNavigateTo: (navigateTo) => set({ 
-        navigateTo,
-        currentTab: 'all' // Reset to 'all' when changing category
-      }),
-      setCurrentTab: (currentTab) => set({ currentTab })
+      currentTab: '0', // Initialize with '0' to match the string index
+      setNavigateTo: (navigateTo) => set({ navigateTo }),
+      setCurrentTab: (currentTab) => set({ currentTab }),
+      reset: () => set({ navigateTo: 0, currentTab: '0' }) // Reset function for navigation
     }),
     {
       name: 'navigation-store',

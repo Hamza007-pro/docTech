@@ -31,10 +31,10 @@ function ProductList() {
         }
         else {
           // Handle "All" case - get all products in current category
-          if (navigateTo) {
+          if (navigateTo === 0) {
             data = await getAllProducts();
           } else {
-            // Get both category products AND its subcategory products
+            // Get products for selected category
             data = await getProductsByCategory(navigateTo);
           }
         }
