@@ -87,7 +87,7 @@ async function setupDatabase() {
       CREATE INDEX idx_products_category_id ON products(category_id);
       CREATE INDEX idx_products_subcategory_id ON products(subcategory_id);
 
-      -- Insert all categories
+      -- Insert main categories
       INSERT INTO categories (name, slug, description) VALUES
           ('WiFi', 'wifi', 'Wireless networking and connectivity solutions'),
           ('Switching', 'switching', 'Network switching and routing equipment'),
@@ -99,7 +99,15 @@ async function setupDatabase() {
           ('VoIP', 'voip', 'Voice over IP communication systems'),
           ('Accessories', 'accessories', 'Additional accessories and components');
 
-      -- Insert sample product
+      -- Insert subcategories
+      INSERT INTO categories (name, slug, description, parent_id) VALUES
+          ('Ruiji', 'ruiji', 'Ruiji networking solutions', 
+              (SELECT id FROM categories WHERE slug = 'switching'));
+      INSERT INTO categories (name, slug, description, parent_id) VALUES
+          ('Ubiquiti', 'ubiquiti', 'Ubiquiti networking solutions', 
+              (SELECT id FROM categories WHERE slug = 'switching'));
+
+      -- Insert sample product for ruiji subcategory
       INSERT INTO products (
           title,
           model,
@@ -128,8 +136,41 @@ async function setupDatabase() {
           '5,000',
           ARRAY['NeXT AI Cybersecurity'],
           '/docs/products/udm-pro-specs.pdf',
-          (SELECT id FROM categories WHERE slug = 'cloud-gateways'),
-          NULL
+          (SELECT id FROM categories WHERE slug = 'switching'),
+          (SELECT id FROM categories WHERE slug = 'ruiji')
+      );
+
+         -- Insert sample product for Ubiquiti subcategory
+      INSERT INTO products (
+          title,
+          model,
+          description,
+          price,
+          availability,
+          image_src,
+          img_full,
+          image_alt,
+          is_new,
+          clients,
+          features,
+          tech_spec_pdf,
+          category_id,
+          subcategory_id
+      ) VALUES (
+          'Dream Machine Pro',
+          'UDM-Pro',
+          'Enterprise-grade, rack-mount UniFi Cloud Gateway with full UniFi application support, 10 Gbps performance, and an integrated switch.',
+          379.00,
+          'In Stock',
+          '/images/products/download.png',
+          '/images/products/full/949fdb99-c8cb-4dae-8097-943f59eced8d.png',
+          'Dream Machine Pro',
+          true,
+          '5,000',
+          ARRAY['NeXT AI Cybersecurity'],
+          '/docs/products/udm-pro-specs.pdf',
+          (SELECT id FROM categories WHERE slug = 'switching'),
+          (SELECT id FROM categories WHERE slug = 'ubiquiti')
       );
     `;
 
