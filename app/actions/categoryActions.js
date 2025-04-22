@@ -27,11 +27,15 @@ export async function getSubcategories(categoryId) {
   
   const queryStr = `
     SELECT c.*,
-      COUNT(p.id) as "productCount"
+      COALESCE(
+        (
+          SELECT COUNT(*)::integer
+          FROM products p
+          WHERE p.subcategory_id = c.id
+        ), 0
+      ) as productcount
     FROM categories c
-    LEFT JOIN products p ON c.id = p.subcategory_id
     WHERE c.parent_id = $1
-    GROUP BY c.id
     ORDER BY c.id
   `;
 
@@ -40,16 +44,32 @@ export async function getSubcategories(categoryId) {
     const data = await query(queryStr, [categoryId]);
     console.log("Direct query result:", JSON.stringify(data));
     
-    const mappedData = data.map(category => ({
-      id: category.id,
-      name: category.name,
-      slug: category.slug,
-      description: category.description,
-      parent_id: category.parent_id,
-      created_at: category.created_at,
-      updated_at: category.updated_at,
-      productCount: parseInt(category.productcount || '0', 10)
-    }));
+    console.log("Raw SQL result with types:", data.map(row => ({
+      ...row,
+      productcount: {
+        value: row.productcount,
+        type: typeof row.productcount
+      }
+    })));
+    
+    const mappedData = data.map(category => {
+      const count = parseInt(category.productcount || '0', 10);
+      console.log(`Category ${category.name} raw productcount:`, category.productcount);
+      console.log(`Category ${category.name} parsed count:`, count);
+      
+      const productCount = count;
+      console.log(`Final productCount for ${category.name}:`, productCount);
+      return {
+        id: category.id,
+        name: category.name,
+        slug: category.slug,
+        description: category.description,
+        parent_id: category.parent_id,
+        created_at: category.created_at,
+        updated_at: category.updated_at,
+        productCount: productCount
+      };
+    });
     
     return mappedData || [];
   } catch (error) {
@@ -83,15 +103,15 @@ export async function getCountProductBySubcat(catId, subId) {
       queryStr = `
         SELECT COUNT(*) as count
         FROM products p
-        WHERE p.category_id = $1
+        JOIN categories c ON p.subcategory_id = c.id
+        WHERE c.parent_id = $1
       `;
       params = [catId];
     } else {
       queryStr = `
         SELECT COUNT(*) as count
-        FROM categories c
-        LEFT JOIN products p ON c.id = p.subcategory_id
-        WHERE c.id = $2 AND c.parent_id = $1
+        FROM products p
+        WHERE p.subcategory_id = $2
       `;
       params = [catId, subId];
     }

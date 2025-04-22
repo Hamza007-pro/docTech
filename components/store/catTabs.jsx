@@ -41,7 +41,12 @@ function CatTabs() {
         console.log("Subcategories result:", JSON.stringify(subs));
         
         // Calculate total product count for "All" category
-        const totalCount = subs.reduce((total, sub) => total + (sub.productCount || 0), 0);
+        let totalCount = 0;
+        subs.forEach(sub => {
+          console.log(`Adding product count for ${sub.name}:`, sub.productCount);
+          totalCount += (parseInt(sub.productCount) || 0);
+        });
+        console.log("Total count for All category:", totalCount);
         
         // Create "All" subcategory with total count
         const allSubcategory = {
@@ -50,6 +55,7 @@ function CatTabs() {
           slug: "all",
           count: totalCount
         };
+        console.log("Created All subcategory:", allSubcategory);
         
         // Always start with the "All" subcategory
         let finalSubs = [allSubcategory];
@@ -59,12 +65,23 @@ function CatTabs() {
           
           // Format the subcategories
           const formattedSubs = subs.map(sub => {
-            return {
-              id: sub.id,
-              name: sub.name,
-              slug: sub.slug,
-              count: sub.productCount || 0
-            };
+          // Ensure we have a valid number for the count
+          const subCount = typeof sub.productCount === 'number' 
+            ? sub.productCount 
+            : parseInt(sub.productCount || '0', 10);
+          
+          console.log(`Processing subcategory ${sub.name}:`, {
+            raw: sub.productCount,
+            parsed: subCount,
+            type: typeof sub.productCount
+          });
+          
+          return {
+            id: sub.id,
+            name: sub.name,
+            slug: sub.slug,
+            count: subCount
+          };
           });
           
           // Combine with the "All" subcategory
@@ -95,7 +112,13 @@ function CatTabs() {
 
   const handleTabClick = (tab) => {
     setCurrentTab(tab.slug);
-    // Add any additional filtering logic here
+    if (tab.slug === 'all') {
+      // For "All" tab, no additional action needed
+      console.log("Selecting All tab");
+    } else {
+      // For subcategory tabs, we need to pass the slug
+      console.log("Selecting subcategory with slug:", tab.slug);
+    }
   };
 
   if (loading) {
@@ -126,7 +149,12 @@ function CatTabs() {
             name="tabs"
             className="block w-full rounded-md border-gray-300 focus:border-indigo-500 focus:ring-indigo-500"
             value={currentTab}
-            onChange={(e) => handleTabClick(e.target.value)}
+            onChange={(e) => {
+              const selectedTab = subcategories.find(tab => tab.slug === e.target.value);
+              if (selectedTab) {
+                handleTabClick(selectedTab);
+              }
+            }}
           >
             {subcategories.map((tab) => (
               <option key={tab.id} value={tab.slug}>
