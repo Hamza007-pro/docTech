@@ -1,7 +1,7 @@
 "use client";
 import StorePage from "./storePage";
 import ProductList from "./productList";
-import useNavigationStore from "@/lib/store/navigationStore";
+import useNavigationStore from "@/app/store/navigationStore";
 
 export default function Body() { 
     const navigateTo = useNavigationStore((state) => state.navigateTo);

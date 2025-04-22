@@ -4,11 +4,21 @@ import { useRouter, usePathname } from 'next/navigation';
 import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/20/solid';
 import Image from 'next/image';
 import Link from 'next/link';
-import useNavigationStore from '@/lib/store/navigationStore';
-import { getMainCategories } from '@/lib/categories';
+import useNavigationStore from '@/app/store/navigationStore';
+import { getMainCategories } from '@/app/actions/categories';
 
 function classNames(...classes) {
     return classes.filter(Boolean).join(' ')
+}
+
+function mapSlugToIcon(slug) {
+    const iconMap = {
+        'networking': 'cloud-gateways.svg',
+        'cameras': 'camera-security.svg',
+        'access': 'door-access.svg',
+        'new': 'New.svg'
+    };
+    return iconMap[slug] || 'integrations.svg'; // fallback icon
 }
 
 export default function NavigationCat() {
@@ -27,36 +37,24 @@ export default function NavigationCat() {
             setIsLoading(true);
             setError(null);
             try {
-                let mainCategories = [];
-                try {
-                    mainCategories = await getMainCategories();
-                } catch (error) {
-                    console.error('Failed to fetch from Supabase:', error);
+                const mainCategories = await getMainCategories();
+                console.log('Fetched categories:', mainCategories);
+                
+                if (!mainCategories || mainCategories.length === 0) {
+                    throw new Error('No categories returned from database');
                 }
-
-                // Fallback categories if Supabase fetch fails
-                const formattedCategories = [
-                    {
-                        id: 'new',
-                        name: "What's New",
-                        href: '/store/new',
-                        img: '/svg/New.svg',
-                        size: 'w-24 h-24'
-                    },
-                    ...(mainCategories.length > 0 
-                        ? mainCategories.map(category => ({
-                            name: category.name,
-                            href: `/store/category/${category.slug}`,
-                            img: `/svg/${category.slug}.svg`,
-                            size: 'w-32 h-24',
-                            id: category.id
-                        }))
-                        : [])
-                ];
+                
+                const formattedCategories = mainCategories.map(category => ({
+                    name: category.name,
+                    href: `/store/category/${category.slug}`,
+                    img: `/svg/${mapSlugToIcon(category.slug)}`,
+                    size: 'w-32 h-24',
+                    id: category.id
+                }));
                 setCategories(formattedCategories);
             } catch (error) {
                 console.error('Error fetching categories:', error);
-                setError('Failed to load categories');
+                setError(`Failed to load categories: ${error.message}`);
             } finally {
                 setIsLoading(false);
             }

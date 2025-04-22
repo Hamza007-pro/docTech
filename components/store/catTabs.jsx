@@ -5,9 +5,9 @@ import { Menu, Transition } from "@headlessui/react";
 import { BarsArrowDownIcon } from "@heroicons/react/20/solid";
 import { AdjustmentsHorizontalIcon } from "@heroicons/react/24/outline";
 import Link from "next/link";
-import { getSubcategories, getCountProductBySubcat } from "@/lib/categories";
-import {getProductsBySubcategorySlug} from "@/lib/products";
-import useNavigationStore from "@/lib/store/navigationStore";
+import { getSubcategories, getCountProductBySubcat } from "@/app/actions/categories";
+import {getProductsBySubcategorySlug} from "@/app/actions/products";
+import useNavigationStore from "@/app/store/navigationStore";
 import { sub } from "date-fns";
 
 function classNames(...classes) {

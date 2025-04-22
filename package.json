@@ -6,7 +6,10 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "setup-db": "node scripts/setup-db.js",
+    "clean": "rm -rf .next",
+    "rebuild": "npm run clean && npm run build"
   },
   "dependencies": {
     "@headlessui/react": "^2.2.0",
@@ -42,8 +45,8 @@
     "@radix-ui/react-tooltip": "^1.1.2",
     "@react-pdf-viewer/core": "^3.12.0",
     "@react-pdf-viewer/default-layout": "^3.12.0",
-    "@supabase/supabase-js": "^2.48.1",
     "@types/pdfjs-dist": "^2.10.377",
+    "@types/pg": "^8.11.13",
     "@types/react": "18.2.22",
     "@types/react-dom": "18.2.7",
     "@types/react-pdf": "^6.2.0",
@@ -52,6 +55,7 @@
     "clsx": "^2.1.1",
     "cmdk": "^1.0.0",
     "date-fns": "^3.6.0",
+    "dotenv": "^16.5.0",
     "embla-carousel-react": "^8.3.0",
     "eslint": "8.49.0",
     "eslint-config-next": "13.5.1",
@@ -61,6 +65,7 @@
     "next": "13.5.1",
     "next-themes": "^0.3.0",
     "pdfjs-dist": "^3.11.174",
+    "pg": "^8.14.1",
     "postcss": "8.4.30",
     "pspdfkit": "^2024.8.2",
     "react": "18.2.0",
@@ -80,6 +85,6 @@
     "zustand": "^5.0.3"
   },
   "devDependencies": {
-    "@types/node": "^22.12.0"
+    "@types/node": "^22.14.1"
   }
 }

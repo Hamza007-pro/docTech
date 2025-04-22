@@ -8,10 +8,9 @@ import {
   getProductsByCategory,
   getProductsByCategorySlug,
   getProductsBySubcategorySlug 
-} from '@/lib/products';
+} from '@/app/actions/products';
 import { Product } from '@/types/product';
-import useNavigationStore from '@/lib/store/navigationStore';
-import { supabase } from '@/lib/supabase';
+import useNavigationStore from '@/app/store/navigationStore';
 
 function ProductList() {
   const [products, setProducts] = useState<Product[]>([]);

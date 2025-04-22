@@ -1,8 +1,10 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  experimental: {
+    serverActions: true
+  },
   images: {
     domains: [
-      'your-supabase-storage-domain.supabase.co',
       'images.unsplash.com',
       'localhost'
     ],
@@ -58,7 +60,7 @@ const nextConfig = {
               "worker-src 'self' blob:",
               "style-src 'self' 'unsafe-inline'",
               "img-src 'self' data: https://images.unsplash.com http://localhost:8000 blob:",
-              "connect-src 'self' blob: http://localhost:8000 https://*.supabase.co",
+              "connect-src 'self' blob: http://localhost:* postgres://*:*",
               "frame-src 'self' blob:",
               "object-src 'self' blob:",
               "media-src 'self' blob:",

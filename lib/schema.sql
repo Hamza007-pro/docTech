@@ -1,7 +1,18 @@
 -- Create enum for availability status
 CREATE TYPE availability_status AS ENUM ('In Stock', 'Sold Out');
 
--- Create products table
+-- Create categories table first
+CREATE TABLE categories (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(50) NOT NULL,
+    slug VARCHAR(50) NOT NULL UNIQUE,
+    description TEXT,
+    parent_id INTEGER REFERENCES categories(id),
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Create products table with correct foreign keys from the start
 CREATE TABLE products (
     id SERIAL PRIMARY KEY,
     title VARCHAR(255) NOT NULL,
@@ -31,60 +42,22 @@ BEGIN
 END;
 $$ language 'plpgsql';
 
+-- Add triggers for both tables
 CREATE TRIGGER update_products_updated_at
     BEFORE UPDATE ON products
     FOR EACH ROW
     EXECUTE FUNCTION update_updated_at_column();
 
--- Insert sample product
-INSERT INTO products (
-    title,
-    model,
-    description,
-    price,
-    availability,
-    image_src,
-    img_full,
-    image_alt,
-    is_new,
-    clients,
-    features,
-    tech_spec_pdf
-) VALUES (
-    'Dream Machine Pro',
-    'UDM-Pro',
-    'Enterprise-grade, rack-mount UniFi Cloud Gateway with full UniFi application support, 10 Gbps performance, and an integrated switch.',
-    379.00,
-    'In Stock',
-    '/images/products/download.png',
-    '/images/products/full/949fdb99-c8cb-4dae-8097-943f59eced8d.png',
-    'Dream Machine Pro',
-    true,
-    '5,000',
-    ARRAY['NeXT AI Cybersecurity'],
-    '/docs/products/udm-pro-specs.pdf'
-);
-
--- Create index for common queries
-CREATE INDEX idx_products_model ON products(model);
-CREATE INDEX idx_products_availability ON products(availability);
-
--- Create categories table
-CREATE TABLE categories (
-    id SERIAL PRIMARY KEY,
-    name VARCHAR(50) NOT NULL,
-    slug VARCHAR(50) NOT NULL UNIQUE,
-    description TEXT,
-    parent_id INTEGER REFERENCES categories(id),
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
-);
-
--- Add trigger for updated_at
 CREATE TRIGGER update_categories_updated_at
     BEFORE UPDATE ON categories
     FOR EACH ROW
     EXECUTE FUNCTION update_updated_at_column();
+
+-- Create indexes for common queries
+CREATE INDEX idx_products_model ON products(model);
+CREATE INDEX idx_products_availability ON products(availability);
+CREATE INDEX idx_products_category_id ON products(category_id);
+CREATE INDEX idx_products_subcategory_id ON products(subcategory_id);
 
 -- Insert main categories
 INSERT INTO categories (name, slug, description) VALUES
@@ -101,20 +74,35 @@ INSERT INTO categories (name, slug, description, parent_id) VALUES
     ('Wireless', 'wireless', 'Wireless networking solutions', 
         (SELECT id FROM categories WHERE slug = 'networking'));
 
--- Modify products table to use foreign keys
-ALTER TABLE products
-    DROP COLUMN category_id,
-    DROP COLUMN subcategory_id,
-    ADD COLUMN category_id INTEGER REFERENCES categories(id),
-    ADD COLUMN subcategory_id INTEGER REFERENCES categories(id);
-
--- Update existing product with proper category references
-UPDATE products 
-SET 
-    category_id = (SELECT id FROM categories WHERE slug = 'networking'),
-    subcategory_id = (SELECT id FROM categories WHERE slug = 'security-gateways')
-WHERE model = 'UDM-Pro';
-
--- Create indexes for the foreign keys
-CREATE INDEX idx_products_category_id ON products(category_id);
-CREATE INDEX idx_products_subcategory_id ON products(subcategory_id);
+-- Insert sample product
+INSERT INTO products (
+    title,
+    model,
+    description,
+    price,
+    availability,
+    image_src,
+    img_full,
+    image_alt,
+    is_new,
+    clients,
+    features,
+    tech_spec_pdf,
+    category_id,
+    subcategory_id
+) VALUES (
+    'Dream Machine Pro',
+    'UDM-Pro',
+    'Enterprise-grade, rack-mount UniFi Cloud Gateway with full UniFi application support, 10 Gbps performance, and an integrated switch.',
+    379.00,
+    'In Stock',
+    '/images/products/download.png',
+    '/images/products/full/949fdb99-c8cb-4dae-8097-943f59eced8d.png',
+    'Dream Machine Pro',
+    true,
+    '5,000',
+    ARRAY['NeXT AI Cybersecurity'],
+    '/docs/products/udm-pro-specs.pdf',
+    (SELECT id FROM categories WHERE slug = 'networking'),
+    (SELECT id FROM categories WHERE slug = 'security-gateways')
+);
