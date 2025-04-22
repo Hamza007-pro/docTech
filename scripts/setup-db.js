@@ -87,20 +87,17 @@ async function setupDatabase() {
       CREATE INDEX idx_products_category_id ON products(category_id);
       CREATE INDEX idx_products_subcategory_id ON products(subcategory_id);
 
-      -- Insert main categories
+      -- Insert all categories
       INSERT INTO categories (name, slug, description) VALUES
-          ('Networking', 'networking', 'Network infrastructure and security solutions'),
-          ('Cameras', 'cameras', 'Security and surveillance cameras'),
-          ('Access', 'access', 'Access control systems');
-
-      -- Insert sub-categories
-      INSERT INTO categories (name, slug, description, parent_id) VALUES
-          ('Security Gateways', 'security-gateways', 'Network security and gateway devices', 
-              (SELECT id FROM categories WHERE slug = 'networking')),
-          ('Switches', 'switches', 'Network switches and routing equipment', 
-              (SELECT id FROM categories WHERE slug = 'networking')),
-          ('Wireless', 'wireless', 'Wireless networking solutions', 
-              (SELECT id FROM categories WHERE slug = 'networking'));
+          ('WiFi', 'wifi', 'Wireless networking and connectivity solutions'),
+          ('Switching', 'switching', 'Network switching and routing equipment'),
+          ('Cloud Gateways', 'cloud-gateways', 'Cloud-based network gateway solutions'),
+          ('Camera Security', 'camera-security', 'Security and surveillance camera systems'),
+          ('Door Access', 'door-access', 'Access control and door security systems'),
+          ('Integrations', 'integrations', 'System integration and compatibility solutions'),
+          ('Advanced Hosting', 'advanced-hosting', 'Advanced hosting and server solutions'),
+          ('VoIP', 'voip', 'Voice over IP communication systems'),
+          ('Accessories', 'accessories', 'Additional accessories and components');
 
       -- Insert sample product
       INSERT INTO products (
@@ -131,8 +128,8 @@ async function setupDatabase() {
           '5,000',
           ARRAY['NeXT AI Cybersecurity'],
           '/docs/products/udm-pro-specs.pdf',
-          (SELECT id FROM categories WHERE slug = 'networking'),
-          (SELECT id FROM categories WHERE slug = 'security-gateways')
+          (SELECT id FROM categories WHERE slug = 'cloud-gateways'),
+          NULL
       );
     `;
 

@@ -12,9 +12,15 @@ function classNames(...classes) {
 
 function mapSlugToIcon(slug) {
     const iconMap = {
-        'networking': 'cloud-gateways.svg',
-        'cameras': 'camera-security.svg',
-        'access': 'door-access.svg',
+        'wifi': 'wifi.svg',
+        'switching': 'switching.svg',
+        'cloud-gateways': 'cloud-gateways.svg',
+        'camera-security': 'camera-security.svg',
+        'door-access': 'door-access.svg',
+        'integrations': 'integrations.svg',
+        'advanced-hosting': 'advanced-hosting.svg',
+        'voip': 'voip.svg',
+        'accessories': 'accessories.svg',
         'new': 'New.svg'
     };
     return iconMap[slug] || 'integrations.svg'; // fallback icon
