@@ -40,12 +40,15 @@ function CatTabs() {
         const subs = await getSubcategories(categoryId);
         console.log("Subcategories result:", JSON.stringify(subs));
         
-        // Create a default "All" subcategory
+        // Calculate total product count for "All" category
+        const totalCount = subs.reduce((total, sub) => total + (sub.productCount || 0), 0);
+        
+        // Create "All" subcategory with total count
         const allSubcategory = {
           id: 0,
           name: "All",
           slug: "all",
-          count: 0
+          count: totalCount
         };
         
         // Always start with the "All" subcategory
@@ -60,7 +63,7 @@ function CatTabs() {
               id: sub.id,
               name: sub.name,
               slug: sub.slug,
-              count: parseInt(sub.productcount || sub.productCount || 0)
+              count: sub.productCount || 0
             };
           });
           

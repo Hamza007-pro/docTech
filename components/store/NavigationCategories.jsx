@@ -43,13 +43,22 @@ export default  function NavigationCategories()  {
                     throw new Error('No categories returned from database');
                 }
                 
-                const formattedCategories = mainCategories.map(category => ({
-                    name: category.name,
-                    href: `/store/category/${category.slug}`,
-                    img: `/svg/${mapSlugToIcon(category.slug)}`,
-                    size: 'w-32 h-24',
-                    id: category.id
-                }));
+                const formattedCategories = [
+                    {
+                        name: 'New',
+                        href: '/store',
+                        img: '/svg/New.svg',
+                        size: 'w-32 h-24',
+                        id: 'new'
+                    },
+                    ...mainCategories.map(category => ({
+                        name: category.name,
+                        href: `/store/category/${category.slug}`,
+                        img: `/svg/${mapSlugToIcon(category.slug)}`,
+                        size: 'w-32 h-24',
+                        id: category.id
+                    }))
+                ];
                 setCategories(formattedCategories);
             } catch (error) {
                 console.error('Error fetching categories:', error);

@@ -25,9 +25,14 @@ export async function getMainCategories() {
 export async function getSubcategories(categoryId) {
   console.log("getSubcategories called with categoryId:", categoryId, "(type: " + typeof categoryId + ")");
   
-  // Simple direct query to get subcategories
   const queryStr = `
-    SELECT * FROM categories WHERE parent_id = $1
+    SELECT c.*,
+      COUNT(p.id) as "productCount"
+    FROM categories c
+    LEFT JOIN products p ON c.id = p.subcategory_id
+    WHERE c.parent_id = $1
+    GROUP BY c.id
+    ORDER BY c.id
   `;
 
   try {
@@ -35,7 +40,18 @@ export async function getSubcategories(categoryId) {
     const data = await query(queryStr, [categoryId]);
     console.log("Direct query result:", JSON.stringify(data));
     
-    return data || [];
+    const mappedData = data.map(category => ({
+      id: category.id,
+      name: category.name,
+      slug: category.slug,
+      description: category.description,
+      parent_id: category.parent_id,
+      created_at: category.created_at,
+      updated_at: category.updated_at,
+      productCount: parseInt(category.productcount || '0', 10)
+    }));
+    
+    return mappedData || [];
   } catch (error) {
     console.error("Error fetching subcategories for categoryId", categoryId, ":", error);
     return [];
@@ -66,15 +82,16 @@ export async function getCountProductBySubcat(catId, subId) {
     if (subId === 0) {
       queryStr = `
         SELECT COUNT(*) as count
-        FROM products
-        WHERE category_id = $1
+        FROM products p
+        WHERE p.category_id = $1
       `;
       params = [catId];
     } else {
       queryStr = `
         SELECT COUNT(*) as count
-        FROM products
-        WHERE category_id = $1 AND subcategory_id = $2
+        FROM categories c
+        LEFT JOIN products p ON c.id = p.subcategory_id
+        WHERE c.id = $2 AND c.parent_id = $1
       `;
       params = [catId, subId];
     }
