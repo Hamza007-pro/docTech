@@ -1,17 +1,7 @@
 'use server';
 
 import { query } from './db';
-
-export interface Category {
-  id: number;
-  name: string;
-  slug: string;
-  description: string | null;
-  parent_id: number | null;
-  created_at: string;
-  updated_at: string;
-  productCount?: number;
-}
+import { Category } from '@/types/category';
 
 export async function getMainCategories(): Promise<Category[]> {
   const queryStr = `

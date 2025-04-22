@@ -5,10 +5,9 @@ import { Menu, Transition } from "@headlessui/react";
 import { BarsArrowDownIcon } from "@heroicons/react/20/solid";
 import { AdjustmentsHorizontalIcon } from "@heroicons/react/24/outline";
 import Link from "next/link";
-import { getSubcategories, getCountProductBySubcat } from "@/app/actions/categories";
+import { getSubcategories, getCountProductBySubcat } from "@/app/actions/categoryActions";
 import {getProductsBySubcategorySlug} from "@/app/actions/products";
 import useNavigationStore from "@/app/store/navigationStore";
-import { sub } from "date-fns";
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(" ");
@@ -17,60 +16,96 @@ function classNames(...classes) {
 function CatTabs() {
   const [subcategories, setSubcategories] = useState([]);
   const { navigateTo, currentTab, setCurrentTab } = useNavigationStore();
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const fetchSubcategoriesAndCounts = async () => {
       try {
-        if (!navigateTo) {
+        setLoading(true);
+        
+        // Make sure navigateTo is a valid number
+        const categoryId = parseInt(navigateTo);
+        console.log("Current navigateTo value:", navigateTo, "parsed as:", categoryId);
+        
+        if (!categoryId || isNaN(categoryId)) {
+          console.log("Invalid navigateTo value:", navigateTo);
           setSubcategories([]);
+          setLoading(false);
           return;
         }
 
-        const subs = await getSubcategories(navigateTo);
+        console.log("Fetching subcategories for category ID:", categoryId);
         
-        const subsWithCounts = await Promise.all(
-          subs.map(async (sub) => {
-            const isAllSubcategory = sub.name === "All";
-            const count = await getCountProductBySubcat(
-              navigateTo,
-              isAllSubcategory ? 0 : sub.id
-            );
-
+        // Direct database query to get subcategories
+        const subs = await getSubcategories(categoryId);
+        console.log("Subcategories result:", JSON.stringify(subs));
+        
+        // Create a default "All" subcategory
+        const allSubcategory = {
+          id: 0,
+          name: "All",
+          slug: "all",
+          count: 0
+        };
+        
+        // Always start with the "All" subcategory
+        let finalSubs = [allSubcategory];
+        
+        if (subs && Array.isArray(subs) && subs.length > 0) {
+          console.log("Found", subs.length, "subcategories for category ID:", categoryId);
+          
+          // Format the subcategories
+          const formattedSubs = subs.map(sub => {
             return {
               id: sub.id,
               name: sub.name,
               slug: sub.slug,
-              count: count || 0,
+              count: parseInt(sub.productcount || sub.productCount || 0)
             };
-          })
-        );
-
-        setSubcategories(subsWithCounts);
-        
-        // Set first tab as current when data loads
-        if (subsWithCounts.length > 0) {
-          setCurrentTab(subsWithCounts[0].slug);
+          });
+          
+          // Combine with the "All" subcategory
+          finalSubs = [allSubcategory, ...formattedSubs];
+        } else {
+          console.log("No subcategories found for category ID:", categoryId);
         }
+        
+        console.log("Setting subcategories to:", JSON.stringify(finalSubs));
+        setSubcategories(finalSubs);
+        setCurrentTab("all");
       } catch (error) {
-        console.error("Error fetching data:", error);
-        setSubcategories([]);
+        console.error("Error fetching subcategories:", error);
+        setSubcategories([{
+          id: 0,
+          name: "All",
+          slug: "all",
+          count: 0
+        }]);
+        setCurrentTab("all");
+      } finally {
+        setLoading(false);
       }
     };
 
     fetchSubcategoriesAndCounts();
-  }, [navigateTo]);
-
-  // Add this useEffect to handle subcategories changes
-  useEffect(() => {
-    if (subcategories.length > 0) {
-      setCurrentTab(subcategories[0].slug);
-    }
-  }, [subcategories]);
+  }, [navigateTo, setCurrentTab]);
 
   const handleTabClick = (tab) => {
-    useNavigationStore.getState().setCurrentTab(tab.slug);
+    setCurrentTab(tab.slug);
     // Add any additional filtering logic here
   };
+
+  if (loading) {
+    return (
+      <div className="flex justify-center py-4">
+        <div className="animate-pulse flex space-x-4">
+          <div className="h-8 w-24 bg-slate-200 rounded"></div>
+          <div className="h-8 w-24 bg-slate-200 rounded"></div>
+          <div className="h-8 w-24 bg-slate-200 rounded"></div>
+        </div>
+      </div>
+    );
+  }
 
   if (subcategories.length === 0) {
     return null; // Don't show tabs if there are no subcategories
@@ -323,6 +358,11 @@ function CatTabs() {
           </nav>
         </div>
       </div>
+      {subcategories.length === 1 && (
+        <div className="text-gray-600 text-sm mt-2">
+          This category has no subcategories.
+        </div>
+      )}
     </div>
   );
 }

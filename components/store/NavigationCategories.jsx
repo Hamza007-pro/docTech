@@ -1,4 +1,3 @@
-"use client";
 import { useRef, useState, useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/20/solid';
@@ -21,7 +20,7 @@ function mapSlugToIcon(slug) {
     return iconMap[slug] || 'integrations.svg'; // fallback icon
 }
 
-export default function NavigationCat() {
+export default  function NavigationCategories()  {
     const router = useRouter();
     const pathname = usePathname();
     const { navigateTo, setNavigateTo, currentTab, setCurrentTab, reset } = useNavigationStore();

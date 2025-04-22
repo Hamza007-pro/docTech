@@ -37,5 +37,7 @@ export async function testConnection() {
   }
 }
 
-// Export pool for use in other server components
-export { pool };
+// Function to get pool instance
+export async function getPool() {
+  return pool;
+}
