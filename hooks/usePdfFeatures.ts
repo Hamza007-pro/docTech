@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import * as pdfjs from 'pdfjs-dist';
-import { supabase } from '@/lib/supabase';
 
 interface Specifications {
   general: { [key: string]: string };
@@ -71,14 +70,20 @@ export const usePdfFeatures = (pdfUrl: string | undefined): {
       try {
         // Set up worker
         if (typeof window !== 'undefined' && !pdfjs.GlobalWorkerOptions.workerSrc) {
-          const worker = await import('pdfjs-dist/build/pdf.worker.min');
-          const workerBlob = new Blob([worker.default], { type: 'text/javascript' });
-          pdfjs.GlobalWorkerOptions.workerSrc = URL.createObjectURL(workerBlob);
+          pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
+          console.log('PDF worker source set to CDN');
         }
 
-        // Load PDF
-        const loadingTask = pdfjs.getDocument(pdfUrl);
+        console.log('Attempting to load PDF from:', pdfUrl);
+        
+        // Load PDF with cMap support
+        const loadingTask = pdfjs.getDocument({
+          url: pdfUrl,
+          cMapUrl: 'https://unpkg.com/pdfjs-dist@3.11.174/cmaps/',
+          cMapPacked: true,
+        });
         const pdf = await loadingTask.promise;
+        console.log('PDF loaded successfully');
         
         // Get first page
         const page = await pdf.getPage(1);
@@ -94,7 +99,8 @@ export const usePdfFeatures = (pdfUrl: string | undefined): {
         setError(null);
       } catch (err) {
         console.error('Error extracting specifications from PDF:', err);
-        setError('Failed to load product specifications');
+        const errorMessage = err instanceof Error ? err.message : 'Failed to load product specifications';
+        setError(`Failed to load product specifications: ${errorMessage}`);
       } finally {
         setIsLoading(false);
       }

@@ -114,7 +114,9 @@ export async function fetchProductById(id: number): Promise<Product | null> {
 
     // Handle tech spec PDF - assume it's a public URL or local path
     if (product.tech_spec_pdf && !product.tech_spec_pdf.startsWith('http')) {
-      product.tech_spec_pdf = `/docs/products/${product.tech_spec_pdf}`;
+      // Remove any existing /docs/products/ prefix to avoid duplication
+      const cleanPath = product.tech_spec_pdf.replace(/^\/?(docs\/products\/)?/, '');
+      product.tech_spec_pdf = `/docs/products/${cleanPath}`;
     }
 
     return product;
