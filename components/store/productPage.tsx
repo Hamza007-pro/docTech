@@ -1,13 +1,13 @@
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import { useSearchParams } from "next/navigation";
-import useNavigationStore from "@/lib/store/navigationStore";
+import useNavigationStore from "../../app/store/navigationStore";
 import TabsMenu from "../product/TabsMenu";
 import ProductReview from "../product/productReview";
 import TechSpecsEnhanced from "../product/TechSpecsEnhanced";
-import { getProductById } from "@/lib/products";
-import { Product } from "@/types/product";
-import { usePdfFeatures } from "@/hooks/usePdfFeatures";
+import { fetchProductById } from "../../app/actions/products";
+import { Product } from "../../types/product";
+import { usePdfFeatures } from "../../hooks/usePdfFeatures";
 
 const SpecificationSection = ({ 
   title, 
@@ -60,7 +60,7 @@ const ProductPage = () => {
       if (!id) return;
       
       try {
-        const data = await getProductById(Number(id));
+        const data = await fetchProductById(Number(id));
         if (data) {
           setProduct(data);
         } else {

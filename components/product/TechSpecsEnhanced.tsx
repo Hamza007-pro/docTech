@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
-import { Product } from "@/types/product";
+import { Product } from "../../types/product";
 import * as pdfjs from 'pdfjs-dist';
-import { supabase } from '@/lib/supabase';
 
 // Set up the worker
 if (typeof window !== 'undefined' && !pdfjs.GlobalWorkerOptions.workerSrc) {
@@ -67,23 +66,8 @@ const TechSpecsEnhanced: React.FC<{ product: Product }> = ({ product }) => {
 
   const resolvePdfUrl = async (pdfPath: string): Promise<string> => {
     if (pdfPath.startsWith('http')) return pdfPath;
-
+    
     try {
-      const { data: fileExists, error: fileCheckError } = await supabase.storage
-        .from('product-specs')
-        .list('', { search: pdfPath.split('/').pop() });
-
-      if (fileCheckError) throw new Error('Error accessing storage');
-
-      if (fileExists?.length > 0) {
-        const { data: fileData, error: signedUrlError } = await supabase.storage
-          .from('product-specs')
-          .createSignedUrl(pdfPath, 3600);
-
-        if (signedUrlError) throw new Error('Error generating secure access link');
-        if (fileData?.signedUrl) return fileData.signedUrl;
-      }
-
       const publicPath = `/docs/products/${pdfPath.split('/').pop()}`;
       const response = await fetch(publicPath, { method: 'HEAD' });
       if (!response.ok) throw new Error('PDF file not found');
