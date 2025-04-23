@@ -47,7 +47,7 @@ const extractSpecifications = (text: string[]): Specifications => {
   return specs;
 };
 
-export const usePdfFeatures = (pdfUrl: string | undefined): {
+export const usePdfFeatures = (pdfData: string | undefined): {
   specs: Specifications;
   isLoading: boolean;
   error: string | null;
@@ -61,7 +61,7 @@ export const usePdfFeatures = (pdfUrl: string | undefined): {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!pdfUrl) {
+    if (!pdfData) {
       setIsLoading(false);
       return;
     }
@@ -74,14 +74,29 @@ export const usePdfFeatures = (pdfUrl: string | undefined): {
           console.log('PDF worker source set to CDN');
         }
 
-        console.log('Attempting to load PDF from:', pdfUrl);
+        let loadingTask;
         
-        // Load PDF with cMap support
-        const loadingTask = pdfjs.getDocument({
-          url: pdfUrl,
-          cMapUrl: 'https://unpkg.com/pdfjs-dist@3.11.174/cmaps/',
-          cMapPacked: true,
-        });
+        if (pdfData.startsWith('data:application/pdf;base64,')) {
+          // Handle base64 PDF
+          const base64Data = pdfData.replace(/^data:application\/pdf;base64,/, '');
+          const binaryData = atob(base64Data);
+          const array = new Uint8Array(binaryData.length);
+          for (let i = 0; i < binaryData.length; i++) {
+            array[i] = binaryData.charCodeAt(i);
+          }
+          loadingTask = pdfjs.getDocument({
+            data: array,
+            cMapUrl: 'https://unpkg.com/pdfjs-dist@3.11.174/cmaps/',
+            cMapPacked: true,
+          });
+        } else {
+          // Handle URL-based PDF
+          loadingTask = pdfjs.getDocument({
+            url: pdfData,
+            cMapUrl: 'https://unpkg.com/pdfjs-dist@3.11.174/cmaps/',
+            cMapPacked: true,
+          });
+        }
         const pdf = await loadingTask.promise;
         console.log('PDF loaded successfully');
         
@@ -107,7 +122,7 @@ export const usePdfFeatures = (pdfUrl: string | undefined): {
     };
 
     loadPdf();
-  }, [pdfUrl]);
+  }, [pdfData]);
 
   return { specs, isLoading, error };
 };

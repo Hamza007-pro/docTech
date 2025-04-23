@@ -112,11 +112,18 @@ export async function fetchProductById(id: number): Promise<Product | null> {
 
     const product = products[0];
 
-    // Handle tech spec PDF - assume it's a public URL or local path
-    if (product.tech_spec_pdf && !product.tech_spec_pdf.startsWith('http')) {
-      // Remove any existing /docs/products/ prefix to avoid duplication
-      const cleanPath = product.tech_spec_pdf.replace(/^\/?(docs\/products\/)?/, '');
-      product.tech_spec_pdf = `/docs/products/${cleanPath}`;
+    // Handle tech spec PDF
+    if (product.tech_spec_pdf) {
+      // If it's already a base64 string starting with data:application/pdf;base64, use it as is
+      if (!product.tech_spec_pdf.startsWith('data:application/pdf;base64,')) {
+        // If it's a URL or local path, convert it to the correct format
+        if (!product.tech_spec_pdf.startsWith('http')) {
+          // Remove any existing /docs/products/ prefix to avoid duplication
+          const cleanPath = product.tech_spec_pdf.replace(/^\/?(docs\/products\/)?/, '');
+          product.tech_spec_pdf = `/docs/products/${cleanPath}`;
+        }
+      }
+      console.log('PDF data type:', product.tech_spec_pdf.startsWith('data:application/pdf;base64,') ? 'base64' : 'url');
     }
 
     return product;
